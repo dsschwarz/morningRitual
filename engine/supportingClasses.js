@@ -54,3 +54,21 @@ SlotManager.prototype.validSlotNumber = function(slotNumber) {
 SlotManager.prototype.getCards = function() {
     return this._slots;
 };
+
+function CardCollection() {
+    this._cards = [];
+    return this;
+}
+
+CardCollection.prototype.addCard = function (card) {
+    this._cards.push(card);
+};
+
+CardCollection.prototype.removeCard = function (card) {
+    var index = _.indexOf(this._cards, card);
+    delete this._cards[index];
+};
+
+CardCollection.prototype.getCards = function () {
+    return this._cards;
+};

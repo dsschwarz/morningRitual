@@ -3,6 +3,10 @@
     text-anchor: middle;
 }
 
+.card.preview {
+    opacity: 0.3;
+}
+
 .selectable {
     border: goldenrod solid 1px;
     cursor: pointer;

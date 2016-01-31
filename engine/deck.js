@@ -14,6 +14,9 @@ function Deck() {
     this.drawCard = function () {
         return cards.pop();
     };
+    this.empty = function () {
+        return cards.length == 0;
+    };
     return this;
 }
 
