@@ -176,9 +176,6 @@ function GameInterface(game) {
             .classed("card-image", true)
             .attr("width", cardWidth)
             .attr("height", cardHeight)
-            .attr("xlink:href", function (d) {
-                return "data:image/png;base64" + d.imageData;
-            });
 
         cards
             .classed("selectable", function (d) {
@@ -188,15 +185,9 @@ function GameInterface(game) {
                 return "translate(" + x.apply(this, arguments) + "," + y.apply(this, arguments) + ")";
             });
 
-        cards.select(".card-back")
-            .attr("fill", function (d) {
-                return d ? "orange" : "lightgrey";
-            });
-
-        cards.select(".title")
-            .attr("dx", cardWidth/2)
-            .text(function (d) {
-                return d ? d.getName() : "";
+        cards.select(".card-image")
+            .attr("xlink:href", function (d) {
+                return "data:image/png;base64" + d.imageData;
             });
 
         cards.exit().remove();
