@@ -21,9 +21,11 @@
     <link rel="stylesheet" href="style.css"/>
     <link rel="stylesheet" href="lib/bootstrap-3.3.6-dist/css/bootstrap.css"/>
     <link rel="stylesheet" href="lib/bootstrap-3.3.6-dist/css/bootstrap-theme.css"/>
+    <script src="/socket.io/socket.io.js"></script>
 
 
     <script>
+        var socket = io();
         $(document).ready(function () {
             var players = [{
                 id: UniqueIdProvider.getId()
@@ -31,7 +33,7 @@
             var game = new Game(players);
             var gameInterface = new GameInterface(game);
             gameInterface.render();
-        })
+        });
     </script>
 
 </head>
