@@ -1,6 +1,5 @@
-.card .title {
-    dominant-baseline: hanging;
-    text-anchor: middle;
+.card .card-image {
+    stroke: darkgrey;
 }
 
 .card.preview {
@@ -11,8 +10,8 @@
     border: goldenrod solid 1px;
     cursor: pointer;
 }
-.card.selectable .card-back {
-    stroke: darkcyan;
+.card.selectable .card-image {
+    stroke: goldenrod;
 }
 .port-label.selectable {
     fill: darkgoldenrod;

@@ -7,11 +7,6 @@ var portTypes = {
     OUTPUT: "OUTPUT"
 };
 
-var cardTypes = {
-    ITEM: "ITEM",
-    CONNECTOR: "CONNECTOR"
-};
-
 var UniqueIdProvider = (function () {
     var id = 0;
     return {

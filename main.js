@@ -165,12 +165,14 @@ function GameInterface(game) {
             .classed("card", true)
             .classed(additionalClass, _.isString(additionalClass))
             .on("click", cardClickHandler);
-        newCards.append("rect")
+
+        newCards.append("image")
+            .classed("card-image", true)
             .attr("width", cardWidth)
             .attr("height", cardHeight)
-            .classed("card-back", true);
-        newCards.append("text")
-            .classed("title", true);
+            .attr("xlink:href", function (d) {
+                return "data:image/png;base64" + d.imageData;
+            });
 
         cards
             .classed("selectable", function (d) {
@@ -202,7 +204,7 @@ function GameInterface(game) {
         }
     };
     var deckClickHandler = function () {
-        if (currentState.onDeckSelect && !game.engine.deck.empty()) {
+        if (currentState.onDeckSelect) {
             currentState.onDeckSelect();
         }
     };
