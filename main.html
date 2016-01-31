@@ -27,22 +27,30 @@
         var socket = io();
         var player = null;
         socket.once("begin", function (players) {
+            $(".stage3").show();
+            $(".stage2").hide();
             var game = new Game(players, socket, player);
             var gameInterface = new GameInterface(game);
             gameInterface.render();
         });
 
         $(document).ready(function () {
+            $(".stage2").hide();
+            $(".stage3").hide();
+
             $(".joinButton").click(function () {
                 socket.once("joined", function (pData) {
                     player = pData;
                     alert("Welcome, " + pData.name + "!");
+                    $(".stage2").show();
                 });
                 socket.emit("join", prompt("What's your name?"));
+                $(".stage1").hide();
             });
 
             $(".beginButton").click(function () {
                 socket.emit("requestStart");
+                $(".stage2").hide();
             });
 
 
@@ -53,17 +61,20 @@
 <body>
 
 <div class="actions">
-    <button class="btn joinButton">Join</button>
-    <button class="btn beginButton">Begin</button>
-    <button class="btn deckButton">Draw Card</button>
+    <button class="btn joinButton stage1">Join</button>
+    <button class="btn beginButton stage2">Begin</button>
+    <button class="btn deckButton stage3">Draw Card</button>
+    <div class="playerList">
+
+    </div>
 </div>
-<div>
+<div class="stage3">
     <h2>Common Area</h2>
     <svg id="common-area" width="800" height="200">
         <g class="card-container"></g>
     </svg>
 </div>
-<div>
+<div class="stage3">
     <h2>Device</h2>
     <svg id="machine-area" width="800" height="500">
         <g class="card-container"></g>
