@@ -66,7 +66,7 @@ CardCollection.prototype.addCard = function (card) {
 
 CardCollection.prototype.removeCard = function (card) {
     var index = _.indexOf(this._cards, card);
-    delete this._cards[index];
+    this._cards.splice(index, 1);
 };
 
 CardCollection.prototype.getCards = function () {

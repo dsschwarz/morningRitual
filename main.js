@@ -159,7 +159,7 @@ function GameInterface(game) {
 
     this.renderCards = function (d3parentElement, cardData, x, y, additionalClass) {
         var cards = d3parentElement
-            .selectAll(".card" + additionalClass ? "."+additionalClass : "")
+            .selectAll(".card" + (additionalClass ? "."+additionalClass : ""))
             .data(cardData);
         var newCards = cards.enter().append("g")
             .classed("card", true)
