@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Morning Ritual</title>
+
+    <script src="lib/underscore.js"></script>
+    <script src="lib/jquery-1.11.1.js"></script>
+    <script src="lib/d3.js"></script>
+    <script src="lib/bootstrap-3.3.6-dist/js/bootstrap.js"></script>
+    <script src="util.js"></script>
+
+    <script src="engine/engine.js"></script>
+    <script src="engine/entities.js"></script>
+    <script src="engine/playerEngine.js"></script>
+    <script src="engine/supportingClasses.js"></script>
+    <script src="engine/deck.js"></script>
+
+    <script src="main.js"></script>
+
+    <link rel="stylesheet" href="style.css"/>
+    <link rel="stylesheet" href="lib/bootstrap-3.3.6-dist/css/bootstrap.css"/>
+    <link rel="stylesheet" href="lib/bootstrap-3.3.6-dist/css/bootstrap-theme.css"/>
+
+
+    <script>
+        $(document).ready(function () {
+            var players = [{
+                id: UniqueIdProvider.getId()
+            }];
+            var game = new Game(players);
+            var gameInterface = new GameInterface(game);
+            gameInterface.draw();
+        })
+    </script>
+
+</head>
+<body>
+
+<div class="actions">
+    <button class="btn nextTurnButton">End Turn</button>
+</div>
+<div>
+    <h2>Common Area</h2>
+    <svg id="common-area" width="800" height="200">
+        <g class="card-container"></g>
+    </svg>
+</div>
+<div>
+    <h2>Device</h2>
+    <svg id="machine-area" width="800" height="500">
+        <g class="card-container"></g>
+    </svg>
+</div>
+
+
+</body>
+</html>

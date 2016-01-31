@@ -1,0 +1,21 @@
+.card .title {
+    dominant-baseline: hanging;
+    text-anchor: middle;
+}
+
+.selectable {
+    border: goldenrod solid 1px;
+    cursor: pointer;
+}
+.card.selectable .card-back {
+    stroke: darkcyan;
+}
+.port-label.selectable {
+    fill: darkgoldenrod;
+}
+
+.actions {
+    float:right;
+    display: flex;
+    flex-direction: column;
+}
