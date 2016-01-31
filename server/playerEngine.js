@@ -1,11 +1,7 @@
-/**
- * Created by dan-s on 30/01/2016.
- */
+var _ = require("underscore");
 
 function PlayerEngine() {
     this._items = [];
-    this._slots = new SlotManager(3);
-    this._connections = []; // list of connections from one port to another
     return this;
 }
 
@@ -41,3 +37,5 @@ pEngineProto.getCard = function (row, column) {
 pEngineProto.getCards = function () {
     return this._items;
 };
+
+module.exports = PlayerEngine;

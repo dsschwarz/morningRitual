@@ -10,11 +10,10 @@
     <script src="lib/bootstrap-3.3.6-dist/js/bootstrap.js"></script>
     <script src="util.js"></script>
 
-    <script src="engine/engine.js"></script>
-    <script src="engine/entities.js"></script>
-    <script src="engine/playerEngine.js"></script>
-    <script src="engine/supportingClasses.js"></script>
-    <script src="engine/deck.js"></script>
+    <script src="engine.js"></script>
+    <script src="card.js"></script>
+    <script src="playerEngine.js"></script>
+    <script src="supportingClasses.js"></script>
 
     <script src="main.js"></script>
 
@@ -26,13 +25,27 @@
 
     <script>
         var socket = io();
-        $(document).ready(function () {
-            var players = [{
-                id: UniqueIdProvider.getId()
-            }];
-            var game = new Game(players);
+        var player = null;
+        socket.once("begin", function (players) {
+            var game = new Game(players, socket, player);
             var gameInterface = new GameInterface(game);
             gameInterface.render();
+        });
+
+        $(document).ready(function () {
+            $(".joinButton").click(function () {
+                socket.once("joined", function (pData) {
+                    player = pData;
+                    alert("Welcome, " + pData.name + "!");
+                });
+                socket.emit("join", prompt("What's your name?"));
+            });
+
+            $(".beginButton").click(function () {
+                socket.emit("requestStart");
+            });
+
+
         });
     </script>
 
@@ -40,6 +53,8 @@
 <body>
 
 <div class="actions">
+    <button class="btn joinButton">Join</button>
+    <button class="btn beginButton">Begin</button>
     <button class="btn deckButton">Draw Card</button>
 </div>
 <div>

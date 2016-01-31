@@ -1,10 +1,12 @@
+var uniqueIds = require("../util");
+
 /**
  * Created by dan-s on 30/01/2016.
  */
 
 // This class is not in use. Remove this comment when this class is used again
 function Port(portType, definition) {
-    this.id = UniqueIdProvider.getId();
+    this.id = uniqueIds.getId();
     this.portType = portType;
     this._loadFromDefinition(definition);
     return this;
@@ -22,12 +24,16 @@ portProto._loadFromDefinition = function (definition) {
  * @constructor
  */
 function Card(definition) {
-    this.id = UniqueIdProvider.getId();
+    this.id = uniqueIds.getId();
     this.imageData = definition.imageData;
 
-    this.getName = function () {
-        return definition.name;
+    this.toDTO = function () {
+        return {
+            id: this.id,
+            imageData: this.imageData
+        }
     };
-
     return this;
 }
+
+module.exports = Card;

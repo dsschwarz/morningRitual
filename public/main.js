@@ -2,12 +2,41 @@
  * Created by dan-s on 30/01/2016.
  */
 
-function Game(players) {
+function Game(players, socket, player) {
     this.engine = new Engine(players);
     this.players = players;
 
-    this.currentPlayer = function () {
-        return this.players[0];
+    this.getPlayerEngine = function () {
+        return this.engine.getPlayerEngine(player);
+    };
+
+    this.addCardToMachine = function(card, row, column) {
+        socket.emit("addCardToMachine", row, column);
+        this.getPlayerEngine().addCardToMachine(card, row, column);
+    };
+
+    this.addCardToOpenArea = function(card) {
+        socket.emit("addCardToOpenArea");
+        this.engine.openArea.addCard(card);
+    };
+
+    this.takeFromOpenArea = function (card) {
+        var deferred = new $.Deferred();
+        socket.once("takeFromOpenAreaResult", function (result) {
+            deferred.resolve(result);
+        });
+        socket.emit("takeFromOpenArea", card.id);
+        return deferred.promise();
+    };
+
+    this.drawCard = function () {
+        var deferred = new $.Deferred();
+        socket.once("cardDrawn", function (cardData) {
+            var card = new Card(cardData);
+            deferred.resolve(card);
+        });
+        socket.emit("drawCard");
+        return deferred.promise();
     };
 }
 
@@ -38,15 +67,33 @@ function GameInterface(game) {
                         console.warn("Invalid card")
                     } else {
                         if (_.contains(game.engine.getOpenCards(), card)) {
-                            goToState("PlaceCardFromCommonArea", card)
+                            goToState("ValidateOpenAreaCard", card)
+                        } else {
+                            console.warn("Invalid card");
                         }
                     }
                 },
                 onDeckSelect: function () {
-                    goToState("PlaceCardFromDeck", game.engine.deck.drawCard());
+                    goToState("DrawingCard");
                 }
             };
             return actions;
+        },
+        ValidateOpenAreaCard: function (card) {
+            game.takeFromOpenArea(card).then(function (result) {
+                if (result) {
+                    goToState("PlaceCardFromCommonArea", card);
+                } else {
+                    goToState("ChooseAction");
+                }
+            });
+            return {};
+        },
+        DrawingCard: function () {
+            game.drawCard().then(function (card) {
+                goToState("PlaceCardFromDeck", card);
+            });
+            return {};
         },
         PlaceCardFromDeck: function (card) {
             return {
@@ -54,21 +101,18 @@ function GameInterface(game) {
                     return card;
                 },
                 onMachineAreaSelect: function (row, column) {
-                    var playerEngine = game.engine.getPlayerEngine(game.currentPlayer());
+                    var playerEngine = game.getPlayerEngine();
                     if (playerEngine.canPlaceCard(card, row, column)) {
-                        playerEngine.addCardToMachine(card, row, column);
+                        game.addCardToMachine(card, row, column);
                         goToState("ChooseAction");
                     }
                 },
                 onCommonAreaSelect: function () {
-                    game.engine.openArea.addCard(card);
+                    game.addCardToOpenArea(card);
                     goToState("ChooseAction");
                 },
-                onSlotSelect: function (slotNumber) {
-                    // add to slot
-                },
                 cancel: function () {
-                    game.engine.openArea.addCard(card);
+                    game.addCardToOpenArea(card);
                     goToState("ChooseAction");
                 }
             }
@@ -80,21 +124,18 @@ function GameInterface(game) {
                     return card;
                 },
                 onMachineAreaSelect: function (row, column) {
-                    var playerEngine = game.engine.getPlayerEngine(game.currentPlayer());
+                    var playerEngine = game.getPlayerEngine();
                     if (playerEngine.canPlaceCard(card, row, column)) {
-                        playerEngine.addCardToMachine(card, row, column);
+                        game.addCardToMachine(card, row, column);
                         goToState("ChooseAction");
                     }
                 },
                 onCommonAreaSelect: function () {
-                    game.engine.openArea.addCard(card);
+                    game.addCardToOpenArea(card);
                     goToState("ChooseAction");
                 },
-                onSlotSelect: function (slotNumber) {
-                    // add to slot
-                },
                 cancel: function () {
-                    game.engine.openArea.addCard(card);
+                    game.addCardToOpenArea(card);
                     goToState("ChooseAction");
                 }
             }

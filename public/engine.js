@@ -1,10 +1,5 @@
-/**
- * Created by dan-s on 30/01/2016.
- */
-
 function Engine(players) {
     var self = this;
-    this.deck = new Deck();
     this.openArea = new CardCollection();
     this._playerEngines = {};
 
