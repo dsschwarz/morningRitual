@@ -13,7 +13,14 @@ var pEngineProto = PlayerEngine.prototype;
 pEngineProto.canPlaceCard = function(card, row, column) {
     var existingCard = this.getCard(row, column);
 
-    return !existingCard;
+    var neighbouringCard =
+        this._items.length == 0 ||
+        this.getCard(row - 1, column) ||
+        this.getCard(row + 1, column) ||
+        this.getCard(row, column - 1) ||
+        this.getCard(row, column + 1);
+
+    return !existingCard && neighbouringCard;
 };
 
 pEngineProto.addCardToMachine = function (card, row, column) {

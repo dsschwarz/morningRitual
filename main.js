@@ -51,11 +51,14 @@ function GameInterface(game) {
         PlaceCardFromDeck: function (card) {
             return {
                 currentCard: function () {
-                    return Object.create(card); // copy it
+                    return card;
                 },
                 onMachineAreaSelect: function (row, column) {
-                    game.engine.getPlayerEngine(game.currentPlayer()).addCardToMachine(card, row, column);
-                    goToState("ChooseAction")
+                    var playerEngine = game.engine.getPlayerEngine(game.currentPlayer());
+                    if (playerEngine.canPlaceCard(card, row, column)) {
+                        playerEngine.addCardToMachine(card, row, column);
+                        goToState("ChooseAction");
+                    }
                 },
                 onCommonAreaSelect: function () {
                     game.engine.openArea.addCard(card);
@@ -74,11 +77,14 @@ function GameInterface(game) {
             game.engine.openArea.removeCard(card);
             return {
                 currentCard: function () {
-                    return Object.create(card); // copy it
+                    return card;
                 },
                 onMachineAreaSelect: function (row, column) {
-                    game.engine.getPlayerEngine(game.currentPlayer()).addCardToMachine(card, row, column);
-                    goToState("ChooseAction")
+                    var playerEngine = game.engine.getPlayerEngine(game.currentPlayer());
+                    if (playerEngine.canPlaceCard(card, row, column)) {
+                        playerEngine.addCardToMachine(card, row, column);
+                        goToState("ChooseAction");
+                    }
                 },
                 onCommonAreaSelect: function () {
                     game.engine.openArea.addCard(card);
