@@ -30,7 +30,9 @@ function Card(definition) {
     this.toDTO = function () {
         return {
             id: this.id,
-            imageData: this.imageData
+            imageData: this.imageData,
+            row: this.row,
+            column: this.column
         }
     };
     return this;

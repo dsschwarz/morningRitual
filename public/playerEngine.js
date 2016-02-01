@@ -39,3 +39,9 @@ pEngineProto.getCard = function (row, column) {
 pEngineProto.getCards = function () {
     return this._items;
 };
+
+pEngineProto.updateCards = function (cards) {
+    this._items = _.map(cards, function (c) {
+        return new Card(c);
+    });
+};

@@ -70,7 +70,8 @@
                                 .addClass("btn stage3")
                                 .text("Show Machine")
                                 .click(function () {
-                                    console.log("click player " + i)
+                                    game.showMachine(person);
+                                    gameInterface.render();
                                 })
                                 .appendTo(personContainer);
 

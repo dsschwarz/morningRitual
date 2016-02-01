@@ -19,9 +19,13 @@ io.on('connection', function(socket){
     var currentCard = null;
 
     var updateStates = function (emitter) {
+        var playerCards = {};
+        _.each(people, function (p) {
+            playerCards[p.id] = gameEngine.getPlayerEngine(p).getCards();
+        });
         emitter.emit("updateGameState", {
             openArea: gameEngine.openArea.getCards().map(function (c) { return c.toDTO()}),
-            playerCards: []
+            playerCards: playerCards
         });
     };
 
@@ -52,7 +56,10 @@ io.on('connection', function(socket){
     });
 
     socket.on("addCardToMachine", function (row, column) {
-        assert(currentCard, "No card selected");
+        if (!currentCard) {
+            socket.emit("userError", "No card selected");
+            return;
+        }
         var playerEngine = gameEngine.getPlayerEngine(player);
 
         if (playerEngine.canPlaceCard(currentCard, row, column)) {
@@ -65,20 +72,33 @@ io.on('connection', function(socket){
     });
 
     socket.on("addCardToOpenArea", function () {
-        assert(currentCard, "No card selected");
+        if (!currentCard) {
+            socket.emit("userError", "No card selected");
+            return;
+        }
         gameEngine.openArea.addCard(currentCard);
         currentCard = null;
         updateStates(io);
     });
 
     socket.on("drawCard", function () {
-        assert(!currentCard, "Card already selected");
+        if (!player) {
+            socket.emit("userError", "Not part of current game");
+            return;
+        }
+        if (!!currentCard) {
+            socket.emit("userError", "Card already selected");
+            return;
+        }
         currentCard = gameEngine.deck.drawCard();
         socket.emit("cardDrawn", currentCard.toDTO());
     });
 
     socket.on("takeFromOpenArea", function (cardId) {
-        assert(!currentCard, "Card already selected");
+        if (!!currentCard) {
+            socket.emit("userError", "Card already selected");
+            return;
+        }
         var openCards = gameEngine.openArea.getCards();
         var validCard = _.some(openCards, function (c) {
             return c.id == cardId;

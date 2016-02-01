@@ -5,9 +5,18 @@
 function Game(players, socket, player) {
     this.engine = new Engine(players);
     this.players = players;
+    var currentPlayer = player || players[0];
 
     this.getPlayerEngine = function () {
-        return this.engine.getPlayerEngine(player);
+        return this.engine.getPlayerEngine(currentPlayer);
+    };
+
+    this.showMachine = function(person) {
+        currentPlayer = person;
+    };
+
+    this.showingMyArea = function () {
+        return !!(player && currentPlayer.id == player.id);
     };
 
     this.addCardToMachine = function(card, row, column) {
@@ -169,9 +178,7 @@ function GameInterface(game) {
         var players = game.players;
         gameInterface.renderOpenArea();
 
-        players.forEach(function (p) {
-            gameInterface.renderPlayerArea(p)
-        })
+        gameInterface.renderPlayerArea();
     };
 
     this.renderOpenArea = function() {
@@ -193,11 +200,11 @@ function GameInterface(game) {
         this.renderCards(cardContainer, cards, getCardX, getCardY);
     };
 
-    this.renderPlayerArea = function (player) {
-        var cards = game.engine.getPlayerEngine(player).getCards();
+    this.renderPlayerArea = function () {
+        var cards = game.getPlayerEngine().getCards();
 
         var machineArea = d3.select("#machine-area")
-            .classed("selectable", currentState.onMachineAreaSelect !== undefined);
+            .classed("selectable", currentState.onMachineAreaSelect !== undefined && game.showingMyArea());
         var cardContainer = machineArea
             .select(".card-container");
 
@@ -276,7 +283,7 @@ function GameInterface(game) {
         });
 
     machineAreaHelpers.element().on("click", function () {
-        if (currentState.onMachineAreaSelect) {
+        if (currentState.onMachineAreaSelect && game.showingMyArea()) {
             currentState.onMachineAreaSelect(
                 machineAreaHelpers.getRow(d3.event.y),
                 machineAreaHelpers.getColumn(d3.event.x)
@@ -284,7 +291,7 @@ function GameInterface(game) {
             d3.event.stopPropagation();
         }
     }).on("mousemove", function () {
-        if (currentState.currentCard) {
+        if (currentState.currentCard && game.showingMyArea()) {
             var card = currentState.currentCard();
             card.row = machineAreaHelpers.getRow(d3.event.y);
             card.column = machineAreaHelpers.getColumn(d3.event.x);
