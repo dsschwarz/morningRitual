@@ -39,6 +39,20 @@ io.on('connection', function(socket){
         }
     });
 
+    socket.on("customReconnect", function (id) {
+        var person = _.findWhere(people, {
+            id: id
+        });
+        if (person && person.disconnected) {
+            person.disconnected = false;
+            player = person;
+            io.emit("updatePeople", people);
+            socket.emit("joined", player);
+        } else {
+            socket.emit("userError", "Cannot reconnect");
+        }
+    });
+
     socket.on("join", function (name) { // TODO pass id and use existing player if possible. For reconnects
         if (gameEngine == null) {
             player = new Player(name);
