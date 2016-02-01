@@ -17,14 +17,32 @@ app.get('/', function(req, res){
 io.on('connection', function(socket){
     var player;
     var currentCard = null;
+
+    var updateStates = function (emitter) {
+        emitter.emit("updateGameState", {
+            openArea: gameEngine.openArea.getCards().map(function (c) { return c.toDTO()}),
+            playerCards: []
+        });
+    };
+
+    socket.on("getPlayers", function () {
+        socket.emit("updatePeople", people); // update just this client
+    });
+    socket.on("getGameState", function () {
+        if (gameEngine) {
+            // update just this client
+            updateStates(socket);
+        }
+    });
+
     socket.on("join", function (name) { // TODO pass id and use existing player if possible. For reconnects
         if (gameEngine == null) {
             player = new Player(name);
             people.push(player);
-            io.emit("update-people", people);
+            io.emit("updatePeople", people);
             socket.emit("joined", player);
         } else {
-            throw new Error("Cannot join game in progress");
+            socket.emit("userError", "Cannot join game in progress");
         }
     });
 
@@ -40,8 +58,9 @@ io.on('connection', function(socket){
         if (playerEngine.canPlaceCard(currentCard, row, column)) {
             playerEngine.addCardToMachine(currentCard, row, column);
             currentCard = null;
+            updateStates(io);
         } else {
-            throw new Error("Invalid position");
+            socket.emit("userError", "Invalid position");
         }
     });
 
@@ -49,6 +68,7 @@ io.on('connection', function(socket){
         assert(currentCard, "No card selected");
         gameEngine.openArea.addCard(currentCard);
         currentCard = null;
+        updateStates(io);
     });
 
     socket.on("drawCard", function () {
@@ -66,17 +86,32 @@ io.on('connection', function(socket){
         if (validCard) {
             currentCard = gameEngine.openArea.removeCardById(cardId);
             socket.emit("takeFromOpenAreaResult", true);
+            updateStates(io);
         } else {
             socket.emit("takeFromOpenAreaResult", false);
+            updateStates(socket);
+        }
+    });
+
+    socket.on("kick", function (id) {
+        var index = _.findIndex(people, function (p) {
+            return p.id == id;
+        });
+        var person = people[index];
+        if (person && person.disconnected && !gameEngine) {
+            people.splice(index, 1);
+            socket.emit("updatePeople", people);
         }
     });
 
     socket.on('disconnect', function(){
-        var index = people.indexOf(player);
-        people.slice(index, 1);
+        if (player) {
+            player.disconnected = true;
+            socket.emit("updatePeople", people);
+        }
     });
 });
 
-http.listen(3000, function(){
+http.listen(3000, function() {
     console.log('listening on *:3000');
 });

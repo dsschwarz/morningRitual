@@ -24,3 +24,13 @@ CardCollection.prototype.removeCardById = function (cardId) {
 CardCollection.prototype.getCards = function () {
     return this._cards;
 };
+
+/**
+ * Sets the cards in this collection
+ * @param cards array of card DTOs (Data transfer objects)
+ */
+CardCollection.prototype.updateCards = function (cards) {
+    this._cards = _.map(cards, function (c) {
+        return new Card(c);
+    });
+};

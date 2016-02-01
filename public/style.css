@@ -22,3 +22,29 @@
     display: flex;
     flex-direction: column;
 }
+
+.player.primary {
+    background-color: lightsalmon;
+}
+
+.player {
+    margin: 5px;
+}
+
+.player-name {
+    margin: 4px;
+}
+
+.player .btn {
+    border-radius: 0;
+}
+
+.inLobby .stage1, .inGame .stage1,
+.outOfLobby .stage2, .inGame .stage2,
+.outOfLobby .stage3, .inLobby .stage3 {
+    display: none;
+}
+
+.player:not(.disconnected) .kickPlayer {
+    display: none;
+}

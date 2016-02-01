@@ -20,3 +20,10 @@ Engine.prototype.getPlayerEngine = function (player) {
 Engine.prototype.getOpenCards = function () {
     return this.openArea.getCards();
 };
+
+Engine.prototype.updateState = function (newState) {
+    this.openArea.updateCards(newState.openArea);
+    _.each(newState.playerCards, function (cards, id) {
+        this._playerEngines[id].updateCards(cards);
+    }, this);
+};
