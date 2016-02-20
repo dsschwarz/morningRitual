@@ -91,7 +91,8 @@ function GameInterface(game) {
         ValidateOpenAreaCard: function (card) {
             game.takeFromOpenArea(card).then(function (result) {
                 if (result) {
-                    goToState("PlaceCardFromCommonArea", card);
+                    game.engine.openArea.removeCard(card);
+                    goToState("PlaceCard", card);
                 } else {
                     goToState("ChooseAction");
                 }
@@ -100,34 +101,11 @@ function GameInterface(game) {
         },
         DrawingCard: function () {
             game.drawCard().then(function (card) {
-                goToState("PlaceCardFromDeck", card);
+                goToState("PlaceCard", card);
             });
             return {};
         },
-        PlaceCardFromDeck: function (card) {
-            return {
-                currentCard: function () {
-                    return card;
-                },
-                onMachineAreaSelect: function (row, column) {
-                    var playerEngine = game.getPlayerEngine();
-                    if (playerEngine.canPlaceCard(card, row, column)) {
-                        game.addCardToMachine(card, row, column);
-                        goToState("ChooseAction");
-                    }
-                },
-                onCommonAreaSelect: function () {
-                    game.addCardToOpenArea(card);
-                    goToState("ChooseAction");
-                },
-                cancel: function () {
-                    game.addCardToOpenArea(card);
-                    goToState("ChooseAction");
-                }
-            }
-        },
-        PlaceCardFromCommonArea: function (card) {
-            game.engine.openArea.removeCard(card);
+        PlaceCard: function (card) {
             return {
                 currentCard: function () {
                     return card;

@@ -16,27 +16,9 @@ app.get('/', function(req, res){
 
 io.on('connection', function(socket){
     var player;
-    var currentCard = null;
-
-    var updateStates = function (emitter) {
-        var playerCards = {};
-        _.each(people, function (p) {
-            playerCards[p.id] = gameEngine.getPlayerEngine(p).getCards();
-        });
-        emitter.emit("updateGameState", {
-            openArea: gameEngine.openArea.getCards().map(function (c) { return c.toDTO()}),
-            playerCards: playerCards
-        });
-    };
 
     socket.on("getPlayers", function () {
         socket.emit("updatePeople", people); // update just this client
-    });
-    socket.on("getGameState", function () {
-        if (gameEngine) {
-            // update just this client
-            updateStates(socket);
-        }
     });
 
     socket.on("customReconnect", function (id) {
@@ -67,64 +49,6 @@ io.on('connection', function(socket){
     socket.on("requestStart", function () {
         gameEngine = new $engine.Engine(people);
         io.emit("begin", people); // emit necessary data here
-    });
-
-    socket.on("addCardToMachine", function (row, column) {
-        if (!currentCard) {
-            socket.emit("userError", "No card selected");
-            return;
-        }
-        var playerEngine = gameEngine.getPlayerEngine(player);
-
-        if (playerEngine.canPlaceCard(currentCard, row, column)) {
-            playerEngine.addCardToMachine(currentCard, row, column);
-            currentCard = null;
-            updateStates(io);
-        } else {
-            socket.emit("userError", "Invalid position");
-        }
-    });
-
-    socket.on("addCardToOpenArea", function () {
-        if (!currentCard) {
-            socket.emit("userError", "No card selected");
-            return;
-        }
-        gameEngine.openArea.addCard(currentCard);
-        currentCard = null;
-        updateStates(io);
-    });
-
-    socket.on("drawCard", function () {
-        if (!player) {
-            socket.emit("userError", "Not part of current game");
-            return;
-        }
-        if (!!currentCard) {
-            socket.emit("userError", "Card already selected");
-            return;
-        }
-        currentCard = gameEngine.deck.drawCard();
-        socket.emit("cardDrawn", currentCard.toDTO());
-    });
-
-    socket.on("takeFromOpenArea", function (cardId) {
-        if (!!currentCard) {
-            socket.emit("userError", "Card already selected");
-            return;
-        }
-        var openCards = gameEngine.openArea.getCards();
-        var validCard = _.some(openCards, function (c) {
-            return c.id == cardId;
-        });
-        if (validCard) {
-            currentCard = gameEngine.openArea.removeCardById(cardId);
-            socket.emit("takeFromOpenAreaResult", true);
-            updateStates(io);
-        } else {
-            socket.emit("takeFromOpenAreaResult", false);
-            updateStates(socket);
-        }
     });
 
     socket.on("kick", function (id) {

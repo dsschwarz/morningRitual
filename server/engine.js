@@ -27,4 +27,15 @@ Engine.prototype.getOpenCards = function () {
     return this.openArea.getCards();
 };
 
+Engine.prototype.summarize = function () {
+    var playerCards = {};
+    _.each(this._playerEngines, function (engine) {
+        playerCards[p.id] = engine.getCards();
+    });
+    return {
+        openArea: this.openArea.getCards().map(function (c) { return c.toDTO()}),
+        playerCards: playerCards
+    }
+};
+
 module.exports.Engine = Engine;
