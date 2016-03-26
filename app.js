@@ -3,73 +3,39 @@ var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var _ = require("underscore");
+var path = require('path');
 var assert = require("assert");
-var Player = require("./player");
-var $engine = require("./server/engine");
-var gameRoutes = require("./server/engine");
+var rooms = require("./server/roomService");
+var gameRoutes = require("./routes/game");
+var indexRoute = require("./routes/index");
 
-var gameEngine = null;
-var people = [];
+// view engine setup
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'jade');
+
 app.use(express.static('public'));
-app.get('/', function(req, res){
-    res.sendfile('main.html');
-});
 
-app.use('/game')
+var lobbyManager = new rooms.LobbyManager(io);
+var gameManager = new rooms.GameManager(io);
+var roomService = new rooms.RoomService(lobbyManager, gameManager);
 
-io.on('connection', function(socket){
-    var player;
+app.use('/', indexRoute(roomService));
+app.use('/game', gameRoutes(roomService));
 
-    socket.on("getPlayers", function () {
-        socket.emit("updatePeople", people); // update just this client
+io.on('connection', function(socket) {
+    var cachedPlayerId = null;
+    socket.on("connectLobby", function (playerId, lobbyId) {
+        cachedPlayerId = playerId;
+        lobbyManager.connectPlayer(playerId, lobbyId, socket);
     });
 
-    socket.on("customReconnect", function (id) {
-        var person = _.findWhere(people, {
-            id: id
-        });
-        if (person && person.disconnected) {
-            person.disconnected = false;
-            player = person;
-            io.emit("updatePeople", people);
-            socket.emit("joined", player);
-        } else {
-            socket.emit("userError", "Cannot reconnect");
-        }
-    });
-
-    socket.on("join", function (name) { // TODO pass id and use existing player if possible. For reconnects
-        if (gameEngine == null) {
-            player = new Player(name);
-            people.push(player);
-            io.emit("updatePeople", people);
-            socket.emit("joined", player);
-        } else {
-            socket.emit("userError", "Cannot join game in progress");
-        }
-    });
-
-    socket.on("requestStart", function () {
-        gameEngine = new $engine.Engine(people);
-        io.emit("begin", people); // emit necessary data here
-    });
-
-    socket.on("kick", function (id) {
-        var index = _.findIndex(people, function (p) {
-            return p.id == id;
-        });
-        var person = people[index];
-        if (person && person.disconnected && !gameEngine) {
-            people.splice(index, 1);
-            socket.emit("updatePeople", people);
-        }
+    socket.on("connectGame", function (playerId, gameId) {
+        cachedPlayerId = playerId;
+        gameManager.connectPlayer(playerId, gameId, socket);
     });
 
     socket.on('disconnect', function(){
-        if (player) {
-            player.disconnected = true;
-            socket.emit("updatePeople", people);
-        }
+        roomService.disconnectPlayer(cachedPlayerId);
     });
 });
 

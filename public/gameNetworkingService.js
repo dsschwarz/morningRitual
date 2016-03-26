@@ -81,4 +81,6 @@ define([], function () {
         this.socket.emit("drawCard");
         return deferred.promise();
     };
+
+    return GameNetworkingService;
 });

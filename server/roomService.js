@@ -1,15 +1,20 @@
-var uniqueIds = require("../util");
+var uniqueIds = require("../uniqueIds");
 var _ = require("underscore");
-var Game = require("game");
+var Game = require("./game");
 
 /**
  * A room is a collection of players. It can be either a lobby or an in-progress game
  * @constructor
  */
-function RoomService(lobbyManager, gameManager) {
+function RoomService(lobbyManager, gameManager, io) {
     this.joinLobby = function (lobbyId, player) {
         var lobby = lobbyManager.getLobby(lobbyId);
         lobby.addPlayer(player);
+        io.emit("updateLobby", lobbyId, lobby.getLobbyState());
+    };
+
+    this.getGame = function (gameId) {
+        return gameManager.getGame(gameId);
     };
 
     this.beginGame = function (lobbyId) {
@@ -26,7 +31,26 @@ function RoomService(lobbyManager, gameManager) {
 
     this.performGameAction = function(gameId, playerId, action) {
         gameManager.performGameAction(gameId, playerId, action);
-    }
+        io.emit("updateGameState", gameId, gameManager.getGame(gameId));
+    };
+    
+    this.disconnectPlayer = function (playerId) {
+        lobbyManager.lobbies().forEach(function (lobby) {
+            var player = lobby.getPlayer(playerId);
+            if (player) {
+                player.disconnected = true;
+                io.emit("updateLobby", lobby.id, lobby.getLobbyState());
+            }
+        });
+        gameManager.games().forEach(function (game) {
+            var player = game.getPlayer(playerId);
+            if (player) {
+                player.disconnected = true;
+                io.emit("updateGameState", game.id, game.getGameState());
+            }
+        });
+    };
+    return this;
 }
 
 /**
@@ -34,6 +58,7 @@ function RoomService(lobbyManager, gameManager) {
  * @constructor
  */
 function LobbyManager() {
+    var that = this;
     var lobbies = [];
 
     this.lobbies = function () {
@@ -52,7 +77,20 @@ function LobbyManager() {
 
     this.removeLobby = function (id) {
         return removeById(lobbies, id);
-    }
+    };
+
+    this.connectPlayer = function (playerId, lobbyId, socket) {
+        var lobby = this.getLobby(lobbyId);
+        var person = lobby.getPlayer(playerId);
+        if (person && person.disconnected) {
+            person.disconnected = false;
+
+            socket.emit("joined", person);
+        } else {
+            socket.emit("userError", "Cannot connect");
+        }
+    };
+    return this;
 }
 
 /**
@@ -65,6 +103,11 @@ function Lobby(owner) {
 
     this.getPlayers = function () {
         return players;
+    };
+    this.getPlayer = function (id) {
+        return _.findWhere({
+            id: id
+        });
     };
 
     this.addPlayer = function (player) {
@@ -79,8 +122,19 @@ function Lobby(owner) {
     this.kickPlayerById = function (playerId) {
         return removeById(players, playerId);
     };
+
+    this.getLobbyState = function () {
+        return {
+            players: players
+        }
+    }
+    return this;
 }
 
+/**
+ * Handles all the games running on this server
+ * @constructor
+ */
 function GameManager() {
     var games = [];
 
@@ -112,24 +166,19 @@ function GameManager() {
         } else if (actionName == "takeGoalTile") {
             game.takeGoalTile(playerId, actionDto.tileId);
         }
-        
-    }
-}
-
-/**
- * Layer connecting the web socket for a player to the game engine
- * @param gameEngine
- * @param player
- * @param socket
- * @param io
- * @constructor
- */
-function GameSocketHandler(gameEngine, player, socket, io) {
-    var currentTile = null;
-
-    var updateStates = function (emitter) {
-        emitter.emit("updateGameState", gameEngine.getGameState());
     };
+
+    this.connectPlayer = function (playerId, gameId, socket) {
+        var game = this.getGame(gameId);
+        var person = game.getPlayer(playerId);
+        if (person && person.disconnected) {
+            person.disconnected = false;
+            socket.emit("joined", person);
+        } else {
+            socket.emit("userError", "Cannot connect");
+        }
+    };
+    return this;
 }
 
 function removeById(list, id) {
@@ -138,3 +187,9 @@ function removeById(list, id) {
 
     return index !== -1;
 }
+
+module.exports = {
+    RoomService: RoomService,
+    GameManager: GameManager,
+    LobbyManager: LobbyManager
+};

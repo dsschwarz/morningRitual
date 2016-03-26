@@ -1,4 +1,5 @@
 var _ = require("underscore");
+var _tile = require("./tile");
 
 function PlayerEngine() {
     this._items = [];
@@ -22,9 +23,8 @@ pEngineProto.canPlaceTile = function(row, column) {
 
 pEngineProto.addTileToMachine = function (row, column) {
     if (this.canPlaceTile(row, column)) {
-        this.heldTile.row = row;
-        this.heldTile.column = column;
-        this._items.push(this.heldTile);
+        var placedTile = _tile.placeTile(this.heldTile, row, column);
+        this._items.push(placedTile);
         this.heldTile = null;
     } else {
         throw new Error("Cannot place tile at given location");

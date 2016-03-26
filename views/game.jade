@@ -1,0 +1,24 @@
+extends layout
+
+block additionalHead
+    script.
+        window.GAME_ID = "#{gameId}";
+    script(src='/lib/underscore.js')
+    script(src='/lib/jquery-1.11.1.js')
+    script(src='/lib/d3.js')
+    script(src='/lib/bootstrap-3.3.6-dist/js/bootstrap.js')
+    script(src='/socket.io/socket.io.js')
+    script(src='/lib/require.js', data-main="/start")
+
+block content
+    div
+        button.btn.deckButton Draw Card
+        .player-list
+    div
+        h2 Common Area
+        svg#common-area(width='800', height='200')
+            g.card-container
+    div
+        h2 Device
+        svg#machine-area(width='800', height='500')
+            g.card-container

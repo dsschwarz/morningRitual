@@ -1,5 +1,5 @@
 var Deck = require("./deck");
-var CardCollection = require("./cardCollection");
+var CardCollection = require("./tileCollection");
 var PlayerEngine = require("./playerEngine");
 var _ = require("underscore");
 
@@ -8,6 +8,7 @@ function Game(players) {
     this.deck = new Deck();
     this.openArea = new CardCollection();
     this._playerEngines = {};
+    this.players = players;
 
     _.each(players, function (player) {
         self._playerEngines[player.id] = new PlayerEngine();
@@ -15,6 +16,12 @@ function Game(players) {
 
     return this;
 }
+
+Game.prototype.getPlayer = function (id) {
+    return _.findWhere(this.players, {
+        id: id
+    });
+};
 
 Game.prototype.getPlayerEngine = function (player) {
     var playerId = _.isObject(player) ? player.id : player;

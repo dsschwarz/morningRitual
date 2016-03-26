@@ -1,5 +1,9 @@
-define(["baseState"], function (baseState) {
-    var placingTileMethods = Object.create(baseState, {
+define(["states/baseState", "underscore"], function (baseState, _) {
+    /**
+     * Consider this the js equivalent of a private, abstract base class
+     * {PlacingTile}
+     */
+    var placingTileMethods = _.extend(Object.create(baseState), {
         playerAreaIsSelectable: true,
         selectPlayerArea: function (row, column) {
             var game = this.stateManager.getGame();
@@ -20,7 +24,7 @@ define(["baseState"], function (baseState) {
         this.stateManager = stateManager;
         return this;
     };
-    PlacingOrdinaryTile.prototype = Object.create(placingTileMethods, {
+    PlacingOrdinaryTile.prototype = _.extend(Object.create(placingTileMethods), {
         selectOpenArea: function () {
             this.cancel();
         }
@@ -30,9 +34,14 @@ define(["baseState"], function (baseState) {
         this.stateManager = stateManager;
         return this;
     };
-    PlacingGoalTile.prototype = Object.create(placingTileMethods, {
+    PlacingGoalTile.prototype = _.extend(Object.create(placingTileMethods), {
         selectGoalTile: function () {
             this.cancel();
         }
     })
+
+    return {
+        PlacingGoalTile: PlacingGoalTile,
+        PlacingOrdinaryTile: PlacingOrdinaryTile
+    }
 });

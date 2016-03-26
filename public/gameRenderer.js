@@ -1,4 +1,4 @@
-define(["d3"], function (d3) {
+define([], function () {
     var CARD_WIDTH = 50;
     var CARD_HEIGHT = 50;
 

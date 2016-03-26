@@ -1,4 +1,4 @@
-define(["baseState"], function (baseState) {
+define(["states/baseState"], function (baseState) {
     var TakingTile = function (stateManager, tile) {
         this.stateManager = stateManager;
         stateManager.getGame().takeFromOpenArea(tile)

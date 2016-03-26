@@ -1,9 +1,10 @@
-define(["baseState", "underscore"], function (baseState, _) {
+define(["states/baseState", "underscore"], function (baseState, _) {
     var DefaultState = function (stateManager) {
         this.stateManager = stateManager;
         return this;
     };
-    DefaultState.prototype = Object.create(baseState, {
+    DefaultState.prototype = Object.create(baseState);
+    _.extend(DefaultState.prototype, {
         isTileSelectable: function (tile) {
             var tiles = this.stateManager.getGame().getOpenTiles();
 
