@@ -1,0 +1,12 @@
+extends layout
+
+block content
+  h1 Sign In
+  form(class="form", method="POST", action="/login")
+    fieldset(class="form-group")
+      label(for="nameInput") User Name
+      input(id="nameInput", placeholder="johndoe123", name="username", class="form-control")
+    fieldset(class="form-group")
+      label(for="password") Password
+      input(id="password", type="password" name="password", class="form-control")
+    input(type="submit", value="Sign In")
