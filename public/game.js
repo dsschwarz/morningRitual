@@ -1,45 +1,35 @@
-function Game(players, socket, player) {
-    this.engine = new Engine(players);
-    var currentPlayer = player || players[0];
-
-    this.getPlayerEngine = function () {
-        return this.engine.getPlayerEngine(currentPlayer);
-    };
-
-    this.showMachine = function(person) {
-        currentPlayer = person;
-    };
-
-    this.showingMyArea = function () {
-        return !!(player && currentPlayer.id == player.id);
-    };
-
-    this.addCardToMachine = function(card, row, column) {
-        socket.emit("addCardToMachine", row, column);
-        this.getPlayerEngine().addCardToMachine(card, row, column);
-    };
-
-    this.addCardToOpenArea = function(card) {
-        socket.emit("addCardToOpenArea");
-        this.engine.openArea.addCard(card);
-    };
-
-    this.takeFromOpenArea = function (card) {
-        var deferred = new $.Deferred();
-        socket.once("takeFromOpenAreaResult", function (result) {
-            deferred.resolve(result);
+define(["playerArea"], function (PlayerArea) {
+    function Game(gameState) {
+        var self = this;
+        this.openArea = new CardCollection();
+        this._playerAreas = {};
+    
+        _.each(gameState.playerAreas, function (state, playerId) {
+            self._playerAreas[playerId] = new PlayerArea(state);
         });
-        socket.emit("takeFromOpenArea", card.id);
-        return deferred.promise();
+    
+        return this;
+    }
+
+    Game.prototype.showMachine = function(person) {
+        // currentPlayer = person;
     };
 
-    this.drawCard = function () {
-        var deferred = new $.Deferred();
-        socket.once("cardDrawn", function (cardData) {
-            var card = new Card(cardData);
-            deferred.resolve(card);
-        });
-        socket.emit("drawCard");
-        return deferred.promise();
+    Game.prototype.showingMyArea = function () {
+        return true;
+        // return !!(player && currentPlayer.id == player.id);
     };
-}
+
+    Game.prototype.getPlayerArea = function (player) {
+        return this._playerAreas[player.id];
+    };
+
+    /**
+     * Returns an array of the open cards.
+     */
+    Game.prototype.getOpenCards = function () {
+        return this.openArea.getCards();
+    };
+    
+    return Game;
+});

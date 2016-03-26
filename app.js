@@ -6,6 +6,7 @@ var _ = require("underscore");
 var assert = require("assert");
 var Player = require("./player");
 var $engine = require("./server/engine");
+var gameRoutes = require("./server/engine");
 
 var gameEngine = null;
 var people = [];
@@ -13,6 +14,8 @@ app.use(express.static('public'));
 app.get('/', function(req, res){
     res.sendfile('main.html');
 });
+
+app.use('/game')
 
 io.on('connection', function(socket){
     var player;

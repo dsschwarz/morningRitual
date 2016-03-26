@@ -2,39 +2,51 @@ var _ = require("underscore");
 
 function PlayerEngine() {
     this._items = [];
+    this.heldTile = null;
     return this;
 }
 
 var pEngineProto = PlayerEngine.prototype;
-pEngineProto.canPlaceCard = function(card, row, column) {
-    var existingCard = this.getCard(row, column);
+pEngineProto.canPlaceTile = function(row, column) {
+    var existingTile = this.getTile(row, column);
 
-    var neighbouringCard =
+    var neighbouringTile =
         this._items.length == 0 ||
-        this.getCard(row - 1, column) ||
-        this.getCard(row + 1, column) ||
-        this.getCard(row, column - 1) ||
-        this.getCard(row, column + 1);
+        this.getTile(row - 1, column) ||
+        this.getTile(row + 1, column) ||
+        this.getTile(row, column - 1) ||
+        this.getTile(row, column + 1);
 
-    return !existingCard && neighbouringCard;
+    return !!this.heldTile && !existingTile && neighbouringTile;
 };
 
-pEngineProto.addCardToMachine = function (card, row, column) {
-    if (this.canPlaceCard(card, row, column)) {
-        card.row = row;
-        card.column = column;
-        this._items.push(card);
+pEngineProto.addTileToMachine = function (row, column) {
+    if (this.canPlaceTile(row, column)) {
+        this.heldTile.row = row;
+        this.heldTile.column = column;
+        this._items.push(this.heldTile);
+        this.heldTile = null;
+    } else {
+        throw new Error("Cannot place tile at given location");
     }
 };
 
-pEngineProto.getCard = function (row, column) {
+pEngineProto.setHeldTile = function (tile) {
+    if (!!this.heldTile) {
+        throw new Error("Already holding tile");
+    }
+    
+    this.heldTile = tile;
+};
+
+pEngineProto.getTile = function (row, column) {
     return _.findWhere(this._items, {
         row: row,
         column: column
     });
 };
 
-pEngineProto.getCards = function () {
+pEngineProto.getTiles = function () {
     return this._items;
 };
 

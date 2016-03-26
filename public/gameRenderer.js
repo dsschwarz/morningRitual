@@ -23,10 +23,10 @@ define(["d3"], function (d3) {
     };
 
     GameRenderer.prototype.renderOpenArea = function() {
-        var cards = this.stateManager.getGame().engine.getOpenCards();
+        var cards = this.stateManager.getGame().getOpenTiles();
 
         var commonArea = d3.select("#common-area")
-            .classed("selectable", this.stateManager.getState().onCommonAreaSelect !== undefined);
+            .classed("selectable", this.stateManager.getState().isOpenAreaSelectable);
 
         var cardContainer = commonArea
             .select(".card-container");
@@ -47,7 +47,7 @@ define(["d3"], function (d3) {
         var cards = game.getPlayerEngine().getCards();
 
         var machineArea = d3.select("#machine-area")
-            .classed("selectable", currentState.onMachineAreaSelect !== undefined && game.showingMyArea());
+            .classed("selectable", currentState.playerAreaIsSelectable && game.showingMyArea());
         var cardContainer = machineArea
             .select(".card-container");
 
@@ -168,20 +168,20 @@ define(["d3"], function (d3) {
             });
 
         machineAreaHelpers.element().on("click", function () {
-            if (that.stateManager.getState().onMachineAreaSelect && game.showingMyArea()) {
-                that.stateManager.getState().onMachineAreaSelect(
+            if (that.stateManager.getGame().showingMyArea()) {
+                that.stateManager.getState().selectPlayerArea(
                     machineAreaHelpers.getRow(d3.event.y),
                     machineAreaHelpers.getColumn(d3.event.x)
                 );
                 d3.event.stopPropagation();
             }
         }).on("mousemove", function () {
-            if (that.stateManager.getState().currentCard && game.showingMyArea()) {
-                var card = that.stateManager.getState().currentCard();
-                card.row = machineAreaHelpers.getRow(d3.event.y);
-                card.column = machineAreaHelpers.getColumn(d3.event.x);
+            var tile = that.stateManager.getPlayerTile();
+            if (tile && that.stateManager.getGame().showingMyArea()) {
+                tile.row = machineAreaHelpers.getRow(d3.event.y);
+                tile.column = machineAreaHelpers.getColumn(d3.event.x);
 
-                that.renderCards(machineAreaHelpers.element(), [card], tileLocation.getCardX, tileLocation.getCardY, "preview")
+                that.renderCards(machineAreaHelpers.element(), [tile], tileLocation.getCardX, tileLocation.getCardY, "preview")
             }
         }).on("mouseleave", function () {
             d3.select("#machine-area").select(".preview").remove();
@@ -192,9 +192,7 @@ define(["d3"], function (d3) {
             var keyCode = event.keyCode;
             if (keyCode == 27) {
                 // cancel
-                if (that.stateManager.getState().cancel) {
-                    that.stateManager.getState().cancel();
-                }
+                that.stateManager.getState().cancel();
             }
         });
     };
@@ -204,7 +202,7 @@ define(["d3"], function (d3) {
 
         // replace with an image later?
         $(".deckButton").click(function deckClickHandler() {
-            that.stateManager.getState().onDeckSelect();
+            that.stateManager.getState().selectDeck();
         });
     };
 

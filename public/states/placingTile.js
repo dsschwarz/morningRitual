@@ -1,5 +1,6 @@
 define(["baseState"], function (baseState) {
     var placingTileMethods = Object.create(baseState, {
+        playerAreaIsSelectable: true,
         selectPlayerArea: function (row, column) {
             var game = this.stateManager.getGame();
             var playerEngine = game.getPlayerEngine();

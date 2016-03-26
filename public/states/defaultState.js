@@ -5,7 +5,7 @@ define(["baseState", "underscore"], function (baseState, _) {
     };
     DefaultState.prototype = Object.create(baseState, {
         isTileSelectable: function (tile) {
-            var tiles = this.stateManager.getGame().engine.getOpenCards();
+            var tiles = this.stateManager.getGame().getOpenTiles();
 
             return _.some(tiles, function (c) {
                 return c.id == tile.id;
@@ -15,8 +15,9 @@ define(["baseState", "underscore"], function (baseState, _) {
             if (!this.isTileSelectable(tile)) {
                 console.warn("Invalid tile")
             } else {
-                if (_.contains(this.stateManager.getGame().engine.getOpenCards(), tile)) {
-                    this.stateManager.goToState("TakingTile", tile)
+                if (_.contains(this.stateManager.getGame().getOpenTiles(), tile)) {
+                    this.stateManager.networking.takeOpenTile(tile);
+                    this.stateManager.goToState("TakingTile")
                 } else {
                     console.warn("Invalid tile");
                 }

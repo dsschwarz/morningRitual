@@ -25,6 +25,10 @@ define([], function () {
             console.warn("Empty handler");
         },
 
+        /**
+         * Indicates if the user is allowed to click on the player area
+         */
+        playerAreaIsSelectable: false,
 
         /**
          * Call when the user selects a position in their OWN area

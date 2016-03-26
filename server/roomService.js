@@ -1,5 +1,6 @@
 var uniqueIds = require("../util");
 var _ = require("underscore");
+var Game = require("game");
 
 /**
  * A room is a collection of players. It can be either a lobby or an in-progress game
@@ -22,6 +23,10 @@ function RoomService(lobbyManager, gameManager) {
             throw new Error("Could not remove lobby " + lobbyId)
         }
     };
+
+    this.performGameAction = function(gameId, playerId, action) {
+        gameManager.performGameAction(gameId, playerId, action);
+    }
 }
 
 /**
@@ -88,9 +93,26 @@ function GameManager() {
     };
 
     this.createGame = function (players) {
-        var newGame = new Engine(players);
+        var newGame = new Game(players);
         games.push(newGame);
         return newGame;
+    };
+
+    this.performGameAction = function (gameId, playerId, actionDto) {
+        var game = this.getGame(gameId);
+        var actionName = actionDto.name;
+        if (actionName == "drawTile") {
+            game.drawTile(playerId);
+        } else if (actionName == "placeTile") {
+            game.placeTile(playerId, actionDto.row, actionDto.column);
+        } else if (actionName == "discardTile") {
+            game.discardTile(playerId);
+        } else if (actionName == "takeOpenTile") {
+            game.takeOpenTile(playerId, actionDto.tileId);
+        } else if (actionName == "takeGoalTile") {
+            game.takeGoalTile(playerId, actionDto.tileId);
+        }
+        
     }
 }
 
@@ -103,71 +125,11 @@ function GameManager() {
  * @constructor
  */
 function GameSocketHandler(gameEngine, player, socket, io) {
-    var currentCard = null;
+    var currentTile = null;
 
     var updateStates = function (emitter) {
-        emitter.emit("updateGameState", gameEngine.summarize());
+        emitter.emit("updateGameState", gameEngine.getGameState());
     };
-
-    socket.on("getGameState", function () {
-        if (gameEngine) {
-            // update just this client
-            updateStates(socket);
-        }
-    });
-    socket.on("addCardToMachine", function (row, column) {
-        if (!currentCard) {
-            socket.emit("userError", "No card selected");
-            return;
-        }
-        var playerEngine = gameEngine.getPlayerEngine(player);
-
-        if (playerEngine.canPlaceCard(currentCard, row, column)) {
-            playerEngine.addCardToMachine(currentCard, row, column);
-            currentCard = null;
-            updateStates(io);
-        } else {
-            socket.emit("userError", "Invalid position");
-        }
-    });
-
-    socket.on("addCardToOpenArea", function () {
-        if (!currentCard) {
-            socket.emit("userError", "No card selected");
-            return;
-        }
-        gameEngine.openArea.addCard(currentCard);
-        currentCard = null;
-        updateStates(io);
-    });
-
-    socket.on("drawCard", function () {
-        if (!!currentCard) {
-            socket.emit("userError", "Card already selected");
-            return;
-        }
-        currentCard = gameEngine.deck.drawCard();
-        socket.emit("cardDrawn", currentCard.toDTO());
-    });
-
-    socket.on("takeFromOpenArea", function (cardId) {
-        if (!!currentCard) {
-            socket.emit("userError", "Card already selected");
-            return;
-        }
-        var openCards = gameEngine.openArea.getCards();
-        var validCard = _.some(openCards, function (c) {
-            return c.id == cardId;
-        });
-        if (validCard) {
-            currentCard = gameEngine.openArea.removeCardById(cardId);
-            socket.emit("takeFromOpenAreaResult", true);
-            updateStates(io);
-        } else {
-            socket.emit("takeFromOpenAreaResult", false);
-            updateStates(socket);
-        }
-    });
 }
 
 function removeById(list, id) {

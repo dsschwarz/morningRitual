@@ -1,7 +1,7 @@
 var util = require("./util");
 
 function Player(name) {
-    this.id = util.getId()
+    this.id = util.getId();
     this.name = name;
 }
 
