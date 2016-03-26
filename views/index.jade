@@ -1,8 +1,23 @@
 extends layout
 
 block content
-  h1 Available Lobbies
+  h1 Lobbies
+  if errors.length
+    div.error
+      for errorMessage in errors
+        div.alert-danger.alert= errorMessage
 
+
+  form(method="post", action="/lobby/create", class="form form-inline")
+    fieldset(class="form-group")
+        label(for="nameInput")
+        input(id="nameInput", placeholder="Lobby Name", name="name", class="form-control")
+    input(type="submit", value="Create Lobby")
   div
-    each lobby in lobbies
-      span lobby.id
+    h2 Available
+    div.row
+      each lobby in lobbies
+        div.col-sm-6= lobby.name
+        div.col-sm-6
+          form.pull-right(method="post", action="/lobby/#{lobby.id}/join")
+            input(type="submit", value="Join")

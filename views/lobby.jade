@@ -1,0 +1,18 @@
+extends layout
+
+block additionalHead
+  script.
+    window.GAME_ID = "#{lobby.id}";
+  script(src="/lib/jquery-1.11.1.js")
+  script(src='/lib/bootstrap-3.3.6-dist/js/bootstrap.js')
+  script(src='/socket.io/socket.io.js')
+  script(src = '/require-config.js')
+  script(src='/lib/require.js', data-main="lobby/lobbyInterface")
+
+block content
+  h1 Lobby - #{lobby.name}
+  span
+    button.btn.beginButton Begin
+  div
+    h2 Players
+    .player-list

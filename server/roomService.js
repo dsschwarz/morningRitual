@@ -1,23 +1,48 @@
 var uniqueIds = require("../uniqueIds");
 var _ = require("underscore");
 var Game = require("./game");
+var Player = require("./player");
+var assert = require("assert");
 
 /**
  * A room is a collection of players. It can be either a lobby or an in-progress game
  * @constructor
  */
 function RoomService(lobbyManager, gameManager, io) {
-    this.joinLobby = function (lobbyId, player) {
+    this.getLobbies = function () {
+        return lobbyManager.lobbies();
+    };
+
+    this.getGame = function (gameId) {
+        assert(_.isNumber(gameId), "Invalid lobby ID");
+        return gameManager.getGame(gameId);
+    };
+
+    this.getLobby = function (lobbyId) {
+        assert(_.isNumber(lobbyId), "Invalid lobby ID");
+        return lobbyManager.getLobby(lobbyId);
+    };
+
+    this.createLobby = function (user, name) {
+        assert(_.isString(name), "Invalid lobby name");
+        assert(name.length, "Missing lobby name");
+        // assert(owner instanceof Player);
+        return lobbyManager.createLobby(user, name);
+    };
+
+    this.joinLobby = function (lobbyId, playerId) {
+        assert(_.isNumber(lobbyId), "Invalid lobby ID");
+        assert(_.isString(playerId));
+        var player = playerId; //TODO dschwarz fetch user
         var lobby = lobbyManager.getLobby(lobbyId);
+        assert(!lobby.getPlayer(playerId), "Already in lobby");
+        assert(lobby, "Lobby does not exist");
         lobby.addPlayer(player);
         io.emit("updateLobby", lobbyId, lobby.getLobbyState());
     };
 
-    this.getGame = function (gameId) {
-        return gameManager.getGame(gameId);
-    };
-
     this.beginGame = function (lobbyId) {
+        assert(_.isNumber(lobbyId), "Invalid lobby ID");
         var lobby = lobbyManager.getLobby(lobbyId);
 
         // this will only call removeLobby if the lobby exists
@@ -69,8 +94,8 @@ function LobbyManager() {
         return _.findWhere(lobbies, {id: id})
     };
 
-    this.createLobby = function (owner) {
-        var newLobby = new Lobby(owner);
+    this.createLobby = function (owner, name) {
+        var newLobby = new Lobby(owner, name);
         lobbies.push(newLobby);
         return newLobby;
     };
@@ -97,9 +122,10 @@ function LobbyManager() {
  * Holds a set of players
  * @constructor
  */
-function Lobby(owner) {
+function Lobby(owner, name) {
     var players = [owner];
     this.id = uniqueIds.getId();
+    this.name = name;
 
     this.getPlayers = function () {
         return players;
@@ -127,7 +153,7 @@ function Lobby(owner) {
         return {
             players: players
         }
-    }
+    };
     return this;
 }
 

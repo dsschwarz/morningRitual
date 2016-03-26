@@ -1,7 +1,9 @@
-var util = require("./util");
-
+/**
+ * A player/user object
+ * @param name
+ * @constructor
+ */
 function Player(name) {
-    this.id = util.getId();
     this.name = name;
 }
 

@@ -89,41 +89,6 @@ define([], function () {
         cards.exit().remove();
     };
 
-    GameRenderer.prototype.updatePeopleList = function(newPeople) {
-        var that = this;
-        var container = $(".player-list").empty();
-
-        _.each(newPeople, function (person, i) {
-            var personContainer = $("<div>")
-                .addClass("player")
-                .toggleClass("primary", person.id == that.stateManager.getCurrentPlayerId())
-                .toggleClass("disconnected", !!person.disconnected)
-                .appendTo(container);
-
-            $("<span>")
-                .addClass("player-name")
-                .text(person.name)
-                .appendTo(personContainer);
-
-            $("<button>")
-                .addClass("btn stage3")
-                .text("Show Machine")
-                .click(function () {
-                    game.showMachine(person);
-                    gameInterface.render();
-                })
-                .appendTo(personContainer);
-            //
-            // $("<button>")
-            //     .addClass("btn kickPlayer stage2")
-            //     .text("Kick")
-            //     .click(function () {
-            //         socket.emit("kick", person.id);
-            //     })
-            //     .appendTo(personContainer);
-        });
-    };
-
     GameRenderer.prototype.registerListeners = function () {
         var that = this;
         var machineAreaHelpers = {

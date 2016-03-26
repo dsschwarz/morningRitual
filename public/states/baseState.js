@@ -31,6 +31,16 @@ define([], function () {
         playerAreaIsSelectable: false,
 
         /**
+         * Indicates if the user is allowed to click on the open area
+         */
+        openAreaIsSelectable: false,
+
+        /**
+         * Indicates if the user is allowed to click on the goal area
+         */
+        goalAreaIsSelectable: false,
+
+        /**
          * Call when the user selects a position in their OWN area
          * @param row {int}
          * @param column {int}
