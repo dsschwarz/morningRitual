@@ -3,6 +3,7 @@
  * @param dto The json definition of the card
  * @returns {Card}
  * @constructor
+ * @deprecated
  */
 function Card(dto) {
     this.id = dto.id;

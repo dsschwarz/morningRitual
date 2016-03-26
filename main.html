@@ -5,17 +5,11 @@
     <title>Morning Ritual</title>
 
     <script src="lib/underscore.js"></script>
+    <script src="lib/require.js"></script>
     <script src="lib/jquery-1.11.1.js"></script>
     <script src="lib/d3.js"></script>
     <script src="lib/bootstrap-3.3.6-dist/js/bootstrap.js"></script>
     <script src="util.js"></script>
-
-    <script src="engine.js"></script>
-    <script src="card.js"></script>
-    <script src="playerEngine.js"></script>
-    <script src="supportingClasses.js"></script>
-
-    <script src="main.js"></script>
 
     <link rel="stylesheet" href="style.css"/>
     <link rel="stylesheet" href="lib/bootstrap-3.3.6-dist/css/bootstrap.css"/>
@@ -23,125 +17,11 @@
     <script src="/socket.io/socket.io.js"></script>
 
 
-    <script>
-        var socket = io();
-        var helpers = (function () {
-            var player = null;
-            var people = [];
-            var game = null;
-            var gameInterface = null;
-
-            var actions = {
-                begin: function () {
-                    $(document.body).addClass("inGame");
-                    $(document.body).removeClass("inLobby");
-                    $(document.body).removeClass("outOfLobby");
-                    game = new Game(people, socket, player);
-                    gameInterface = new GameInterface(game);
-                    gameInterface.render();
-                },
-
-                updateGameState: function (newState) {
-                    if (!game) {
-                        actions.begin();
-                    }
-                    game.engine.updateState(newState);
-                    gameInterface.render();
-                },
-                updatePeopleList: function(newPeople) {
-                    if (newPeople) {
-                        people = newPeople;
-                    }
-                    var container = $(".player-list").empty();
-
-                    _.each(people, function (person, i) {
-                        var personContainer = $("<div>")
-                                .addClass("player")
-                                .toggleClass("primary", !!(player && person.id == player.id))
-                                .toggleClass("disconnected", !!person.disconnected)
-                                .appendTo(container);
-
-                        $("<span>")
-                                .addClass("player-name")
-                                .text(person.name)
-                                .appendTo(personContainer);
-
-                        $("<button>")
-                                .addClass("btn stage3")
-                                .text("Show Machine")
-                                .click(function () {
-                                    game.showMachine(person);
-                                    gameInterface.render();
-                                })
-                                .appendTo(personContainer);
-
-                        $("<button>")
-                                .addClass("btn kickPlayer stage2")
-                                .text("Kick")
-                                .click(function () {
-                                    socket.emit("kick", person.id);
-                                })
-                                .appendTo(personContainer);
-                    });
-                },
-                setPlayer: function(pData) {
-                    player = pData;
-                    helpers.updatePeopleList();
-                    alert("Welcome, " + pData.name + "!");
-                }
-            };
-            return actions;
-        })();
-
-        $(document).ready(function () {
-            socket.on("userError", function (e) {
-                console.error(e);
-            });
-
-            socket.once("begin", helpers.begin);
-            socket.once("joined", function (player) {
-                $(document.body).addClass("inLobby");
-                $(document.body).removeClass("outOfLobby");
-                document.cookie = "playerId=" + player.id;
-                helpers.setPlayer(player);
-            });
-
-            socket.on("updatePeople", function (newPeople) {
-                helpers.updatePeopleList(newPeople);
-            });
-            socket.on("updateGameState", function (newState) {
-                helpers.updateGameState(newState);
-            });
-
-            $(".joinButton").click(function () {
-                socket.emit("join", prompt("What's your name?"));
-            });
-
-            $(".beginButton").click(function () {
-                socket.emit("requestStart");
-            });
-
-            var cookieString = document.cookie;
-            var oldId;
-            _.each(cookieString.split(";"), function (cookiePair) {
-                var split = cookiePair.split("=");
-                var cookieName = split[0].trim();
-                if (cookieName == "playerId") {
-                    oldId = split[1];
-                }
-            });
-            if (oldId) {
-                socket.emit("customReconnect", parseInt(oldId)); // all ids are numeric for now
-            }
-            socket.emit("getPlayers");
-            socket.emit("getGameState"); // may or may not update the game
-        });
-    </script>
-
 </head>
-<body class="outOfLobby">
+<body class="outOfLobby" data-main="start.js">
 
 <div class="actions">
+    <!-- Move to lobby.html -->
     <button class="btn joinButton stage1">Join</button>
     <button class="btn beginButton stage2">Begin</button>
     <button class="btn deckButton stage3">Draw Card</button>

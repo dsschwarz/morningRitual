@@ -4,6 +4,7 @@
 
 function PlayerEngine() {
     this._items = [];
+    this.currentTile = null;
     return this;
 }
 
