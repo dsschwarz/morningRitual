@@ -19,7 +19,7 @@ function RoomService(lobbyManager, gameManager, io) {
     };
 
     this.getLobby = function (lobbyId) {
-        assert(_.isNumber(lobbyId), "Invalid lobby ID");
+        assert(_.isFinite(lobbyId), "Invalid lobby ID");
         return lobbyManager.getLobby(lobbyId);
     };
 
@@ -30,33 +30,34 @@ function RoomService(lobbyManager, gameManager, io) {
         return lobbyManager.createLobby(user, name);
     };
 
-    this.joinLobby = function (lobbyId, playerId) {
-        assert(_.isNumber(lobbyId), "Invalid lobby ID");
-        assert(_.isString(playerId));
-        var player = playerId; //TODO dschwarz fetch user
+    this.joinLobby = function (lobbyId, user) {
+        assert(_.isFinite(lobbyId), "Invalid lobby ID");
         var lobby = lobbyManager.getLobby(lobbyId);
-        assert(!lobby.getPlayer(playerId), "Already in lobby");
+        assert(!lobby.getPlayer(user.id), "Already in lobby");
         assert(lobby, "Lobby does not exist");
-        lobby.addPlayer(player);
+        lobby.addPlayer(user);
         io.emit("updateLobby", lobbyId, lobby.getLobbyState());
     };
 
     this.beginGame = function (lobbyId) {
-        assert(_.isNumber(lobbyId), "Invalid lobby ID");
+        assert(_.isFinite(lobbyId), "Invalid lobby ID");
         var lobby = lobbyManager.getLobby(lobbyId);
 
         // this will only call removeLobby if the lobby exists
         if (lobby != undefined && lobbyManager.removeLobby(lobbyId)) {
             // if the lobby was successfully removed, then create the game
-            return gameManager.createGame(lobby.getPlayers());
+            var game = gameManager.createGame(lobby.getPlayers());
+            io.emit("beginGame", lobbyId, game.id);
+            return game;
         } else {
             throw new Error("Could not remove lobby " + lobbyId)
         }
     };
 
     this.performGameAction = function(gameId, playerId, action) {
-        gameManager.performGameAction(gameId, playerId, action);
-        io.emit("updateGameState", gameId, gameManager.getGame(gameId));
+        var result = gameManager.performGameAction(gameId, playerId, action);
+        io.emit("updateGameState", gameId, result);
+        return result;
     };
     
     this.disconnectPlayer = function (playerId) {
@@ -91,7 +92,7 @@ function LobbyManager() {
     };
 
     this.getLobby = function (id) {
-        return _.findWhere(lobbies, {id: id})
+        return _.findWhere(lobbies, {id: id});
     };
 
     this.createLobby = function (owner, name) {
@@ -106,13 +107,21 @@ function LobbyManager() {
 
     this.connectPlayer = function (playerId, lobbyId, socket) {
         var lobby = this.getLobby(lobbyId);
-        var person = lobby.getPlayer(playerId);
-        if (person && person.disconnected) {
-            person.disconnected = false;
+        if (lobby) {
+            var person = lobby.getPlayer(playerId);
+            if (person) {
+                if (person.disconnected) {
+                    person.disconnected = false;
 
-            socket.emit("joined", person);
+                    socket.emit("joined", person);
+                } else {
+                    socket.emit("userError", "Player is currently connected, cannot override");
+                }
+            } else {
+                socket.emit("userError", "No matching player found in lobby");
+            }
         } else {
-            socket.emit("userError", "Cannot connect");
+            socket.emit("userError", "Lobby does not exist");
         }
     };
     return this;
@@ -127,16 +136,19 @@ function Lobby(owner, name) {
     this.id = uniqueIds.getId();
     this.name = name;
 
+    owner.disconnected = true;
+
     this.getPlayers = function () {
         return players;
     };
     this.getPlayer = function (id) {
-        return _.findWhere({
+        return _.findWhere(players, {
             id: id
         });
     };
 
     this.addPlayer = function (player) {
+        player.disconnected = true;
         players.push(player)
     };
 
@@ -192,6 +204,7 @@ function GameManager() {
         } else if (actionName == "takeGoalTile") {
             game.takeGoalTile(playerId, actionDto.tileId);
         }
+        return game.getGameState();
     };
 
     this.connectPlayer = function (playerId, gameId, socket) {

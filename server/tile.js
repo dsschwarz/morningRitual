@@ -11,7 +11,7 @@ module.exports = {
             toDTO: function () {
                 return {
                     id: this.id,
-                    imageData: this.imageData
+                    imageId: this.imageId
                 }
             }
         })
@@ -23,7 +23,7 @@ module.exports = {
             toDTO: function () {
                 return {
                     id: this.id,
-                    imageData: this.imageData,
+                    imageId: this.imageId,
                     row: this.row,
                     column: this.column
                 }

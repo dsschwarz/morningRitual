@@ -1,14 +1,15 @@
 var _ = require("underscore");
 var _tile = require("./tile");
 
-function PlayerEngine() {
+function PlayerArea(playerId) {
     this._items = [];
     this.heldTile = null;
+    this.playerId = playerId;
     return this;
 }
 
-var pEngineProto = PlayerEngine.prototype;
-pEngineProto.canPlaceTile = function(row, column) {
+var pAreaProto = PlayerArea.prototype;
+pAreaProto.canPlaceTile = function(row, column) {
     var existingTile = this.getTile(row, column);
 
     var neighbouringTile =
@@ -21,7 +22,7 @@ pEngineProto.canPlaceTile = function(row, column) {
     return !!this.heldTile && !existingTile && neighbouringTile;
 };
 
-pEngineProto.addTileToMachine = function (row, column) {
+pAreaProto.addTileToMachine = function (row, column) {
     if (this.canPlaceTile(row, column)) {
         var placedTile = _tile.placeTile(this.heldTile, row, column);
         this._items.push(placedTile);
@@ -31,7 +32,7 @@ pEngineProto.addTileToMachine = function (row, column) {
     }
 };
 
-pEngineProto.setHeldTile = function (tile) {
+pAreaProto.setHeldTile = function (tile) {
     if (!!this.heldTile) {
         throw new Error("Already holding tile");
     }
@@ -39,15 +40,15 @@ pEngineProto.setHeldTile = function (tile) {
     this.heldTile = tile;
 };
 
-pEngineProto.getTile = function (row, column) {
+pAreaProto.getTile = function (row, column) {
     return _.findWhere(this._items, {
         row: row,
         column: column
     });
 };
 
-pEngineProto.getTiles = function () {
+pAreaProto.getTiles = function () {
     return this._items;
 };
 
-module.exports = PlayerEngine;
+module.exports = PlayerArea;

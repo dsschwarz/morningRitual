@@ -1,7 +1,7 @@
-requirejs(["networking/lobbyNetworkingService"], function (Networking) {
+requirejs(["networking/lobbyNetworkingService", "peopleList"], function (Networking, peopleList) {
     var networkingService = new Networking();
     
     networkingService.getLobbyState().then(function (lobbyState) {
-        debugger;
+        peopleList.updatePeopleList(lobbyState.players);
     });
 });

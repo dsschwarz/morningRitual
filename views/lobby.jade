@@ -2,7 +2,7 @@ extends layout
 
 block additionalHead
   script.
-    window.GAME_ID = "#{lobby.id}";
+    window.LOBBY_ID = #{lobby.id};
   script(src="/lib/jquery-1.11.1.js")
   script(src='/lib/bootstrap-3.3.6-dist/js/bootstrap.js')
   script(src='/socket.io/socket.io.js')
@@ -11,8 +11,9 @@ block additionalHead
 
 block content
   h1 Lobby - #{lobby.name}
-  span
-    button.btn.beginButton Begin
+  form(method="post", action="/lobby/#{lobby.id}/begin", class="form form-inline")
+    input(type="submit", value="Begin")
+
   div
     h2 Players
     .player-list

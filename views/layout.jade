@@ -7,4 +7,11 @@ html
     link(rel='stylesheet', href='/lib/bootstrap-3.3.6-dist/css/bootstrap-theme.css')
     block additionalHead
   body.container
+    if locals.username
+      div.pull-right
+        span Logged in as #{locals.username}
+
+    for outputs, messageType in messages
+      for output in outputs
+        div(class="alert alert-#{messageType}")= output
     block content

@@ -3,7 +3,7 @@ define(["networking/connect", "jquery"], function (connect, $) {
         var that = this;
         this.socket = io();
         this._lobbyChangeCallbacks = [];
-        this.playerId = connect.connect("connectGame", this.socket);
+        this.playerId = connect.connect("connectLobby", window.LOBBY_ID, this.socket);
 
         this.beginListening();
         return this;
@@ -15,21 +15,27 @@ define(["networking/connect", "jquery"], function (connect, $) {
             console.error(e);
         });
 
-        this.socket.on("updateLobbyState", function (newState) {
-            that._lobbyChangeCallbacks.each(function (callback) {
-                callback.call(null, newState);
-            });
+        this.socket.on("updateLobbyState", function (lobbyId, newState) {
+            if (lobbyId == window.LOBBY_ID) {
+                that._lobbyChangeCallbacks.each(function (callback) {
+                    callback.call(null, newState);
+                });
+            }
         });
+        
+        this.socket.on("beginGame", function (lobbyId, gameId) {
+            if (lobbyId == window.LOBBY_ID) {
+                window.location = "/game/" + gameId;
+            }
+        })
     };
-
-
 
     LobbyNetworkingService.prototype.onChange = function(callback) {
         this._lobbyChangeCallbacks.push(callback);
     };
 
     LobbyNetworkingService.prototype.getLobbyState = function () {
-        return $.get("state");
+        return $.get(window.location.toString() + "/state");
     };
     
     return LobbyNetworkingService;

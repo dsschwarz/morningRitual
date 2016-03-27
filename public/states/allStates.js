@@ -2,10 +2,11 @@ define([
     "states/defaultState",
     "states/placingTile",
     "states/takingTile"
-], function (DefaultState, PlacingTile, TakingTile) {
+], function (DefaultState, placingTile, TakingTile) {
     return {
         "DefaultState": DefaultState,
-        "PlacingTile": PlacingTile,
+        "PlacingGoalTile": placingTile.PlacingGoalTile,
+        "PlacingOrdinaryTile": placingTile.PlacingOrdinaryTile,
         "TakingTile": TakingTile
     }
 });

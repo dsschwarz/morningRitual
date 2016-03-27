@@ -1,18 +1,37 @@
-define(["lib/d3", "states/allStates"], function (d3, allStates) {
-    function StateManager(game, gameNetworkingService) {
+define(["lib/d3", "states/allStates", "Game"], function (d3, allStates, Game) {
+    function StateManager(initialState, gameNetworkingService) {
         var that;
-        this.game = game;
+        this.game = new Game(initialState);
         this.networking = gameNetworkingService;
-        this.networking.onGameStateChange(function updateGame(newState) {
-            that.game.updateState(newState);
-        });
+        this.networking.onGameStateChange(this.handleGameStateChange.bind(this));
+        this._onChangeCallbacks = [];
+        this.goToState("DefaultState");
         return this;
     }
 
+    StateManager.prototype.onChange = function(callback) {
+        this._onChangeCallbacks.push(callback);
+    };
+
+    StateManager.prototype.handleGameStateChange = function (newState) {
+        this.game = new Game(newState);
+        this._triggerChange();
+    };
+
+    StateManager.prototype._triggerChange = function () {
+        this._onChangeCallbacks.forEach(function (callback) {
+            callback.call();
+        })
+    };
+
     StateManager.prototype.goToState = function (name) {
         d3.select(".preview").remove(); // clear all previews
-        this.currentState = allStates[name].apply(null, Array.prototype.slice.call(arguments, 1));
-        this.render();
+        var givenArguments = Array.prototype.slice.call(arguments, 1);
+        givenArguments.unshift(this);
+        givenArguments.unshift(null);
+        var constructor = Function.prototype.bind.apply(allStates[name], givenArguments);
+        this.currentState = new constructor;
+        this._triggerChange();
     };
 
     StateManager.prototype.getState = function () {
@@ -24,11 +43,11 @@ define(["lib/d3", "states/allStates"], function (d3, allStates) {
     };
 
     StateManager.prototype.getPlayerTile = function () {
-        return this.game.getPlayerEngine().heldTile;
+        return this.game.getPlayerArea(this.getCurrentPlayerId()).heldTile;
     };
 
     StateManager.prototype.getCurrentPlayerId = function () {
-        return this.networking.player;
+        return this.networking.playerId;
     };
 
     return StateManager;

@@ -1,19 +1,20 @@
-define([], function () {
+define(["imageData"], function (imageData) {
     var CARD_WIDTH = 50;
     var CARD_HEIGHT = 50;
 
     var tileLocation = {
-        getCardX: function (d) {
+        getTileX: function (d) {
             return d.column*CARD_WIDTH;
         },
 
-        getCardY: function (d) {
+        getTileY: function (d) {
             return d.row*CARD_HEIGHT;
         }
     };
 
     var GameRenderer = function (stateManager) {
         this.stateManager = stateManager;
+        this.currentPlayerId = stateManager.getCurrentPlayerId();
         this.registerListeners();
     };
     GameRenderer.prototype.render = function () {
@@ -23,70 +24,75 @@ define([], function () {
     };
 
     GameRenderer.prototype.renderOpenArea = function() {
-        var cards = this.stateManager.getGame().getOpenTiles();
+        var tiles = this.stateManager.getGame().getOpenTiles();
 
         var commonArea = d3.select("#common-area")
-            .classed("selectable", this.stateManager.getState().isOpenAreaSelectable);
+            .classed("selectable", this.stateManager.getState().openAreaIsSelectable);
 
-        var cardContainer = commonArea
-            .select(".card-container");
+        var tileContainer = commonArea
+            .select(".tile-container");
 
-        var getCardX = function(d, index) {
+        var getTileX = function(d, index) {
             return index*(CARD_WIDTH + 10);
         };
-        var getCardY = function(d) {
+        var getTileY = function(d) {
             return 10;
         };
 
-        this.renderCards(cardContainer, cards, getCardX, getCardY);
+        this.renderTiles(tileContainer, tiles, getTileX, getTileY);
     };
 
     GameRenderer.prototype.renderPlayerArea = function () {
         var game = this.stateManager.getGame();
         var currentState = this.stateManager.getState();
-        var cards = game.getPlayerEngine().getCards();
+        var tiles = game.getPlayerArea(this.currentPlayerId).getTiles();
 
         var machineArea = d3.select("#machine-area")
             .classed("selectable", currentState.playerAreaIsSelectable && game.showingMyArea());
-        var cardContainer = machineArea
-            .select(".card-container");
+        var tileContainer = machineArea
+            .select(".tile-container");
 
-        this.renderCards(cardContainer, cards, tileLocation.getCardX, tileLocation.getCardY);
+        this.renderTiles(tileContainer, tiles, tileLocation.getTileX, tileLocation.getTileY);
     };
 
-    GameRenderer.prototype.renderCards = function (d3parentElement, cardData, x, y, additionalClass) {
+    GameRenderer.prototype.renderTiles = function (d3parentElement, tileData, x, y, additionalClass) {
         var that = this;
-        var cards = d3parentElement
-            .selectAll(".card" + (additionalClass ? "."+additionalClass : ""))
-            .data(cardData);
-        var newCards = cards.enter().append("g")
-            .classed("card", true)
+        var tiles = d3parentElement
+            .selectAll(".tile" + (additionalClass ? "."+additionalClass : ""))
+            .data(tileData);
+        var newTiles = tiles.enter().append("g")
+            .classed("tile", true)
             .classed(additionalClass, _.isString(additionalClass))
-            .on("click", function cardClickHandler(card) {
-                that.stateManager.getState().onCardSelect(card);
+            .on("click", function tileClickHandler(tile) {
+                that.stateManager.getState().selectTile(tile);
                 d3.event.stopPropagation();
             });
 
-        newCards.append("image")
-            .classed("card-image", true)
+        newTiles.append("image")
+            .classed("tile-image", true)
             .attr("width", CARD_WIDTH)
             .attr("height", CARD_HEIGHT);
 
-        cards
+        tiles
             .classed("selectable", function (d) {
                 var currentState = that.stateManager.getState();
-                return currentState.selectableCard && currentState.selectableCard(d);
+                return currentState.selectableTile && currentState.selectableTile(d);
             })
             .attr("transform", function (d) {
                 return "translate(" + x.apply(this, arguments) + "," + y.apply(this, arguments) + ")";
             });
 
-        cards.select(".card-image")
+        tiles.select(".tile-image")
             .attr("xlink:href", function (d) {
-                return "data:image/png;base64" + d.imageData;
+                if (imageData[d.imageId]) {
+                    return "data:image/png;base64" + imageData[d.imageId];
+                } else {
+                    console.warn("Invalid image id - " + d.imageId);
+                    return;
+                }
             });
 
-        cards.exit().remove();
+        tiles.exit().remove();
     };
 
     GameRenderer.prototype.registerListeners = function () {
@@ -113,19 +119,19 @@ define([], function () {
                 }
             })
             .on("mousemove", function () {
-                if (that.stateManager.getState().currentCard) {
-                    var card = that.stateManager.getState().currentCard();
+                if (that.stateManager.getState().currentTile) {
+                    var tile = that.stateManager.getState().currentTile();
                     var x = d3.event.x - this.getBoundingClientRect().left;
                     var y = d3.event.y - this.getBoundingClientRect().top;
 
-                    var getCardX = function () {
+                    var getTileX = function () {
                         return x;
                     };
-                    var getCardY = function () {
+                    var getTileY = function () {
                         return y;
                     };
 
-                    that.renderCards(d3.select("#common-area"), [card], getCardX, getCardY, "preview")
+                    that.renderTiles(d3.select("#common-area"), [tile], getTileX, getTileY, "preview")
                 }
             })
             .on("mouseleave", function () {
@@ -146,7 +152,7 @@ define([], function () {
                 tile.row = machineAreaHelpers.getRow(d3.event.y);
                 tile.column = machineAreaHelpers.getColumn(d3.event.x);
 
-                that.renderCards(machineAreaHelpers.element(), [tile], tileLocation.getCardX, tileLocation.getCardY, "preview")
+                that.renderTiles(machineAreaHelpers.element(), [tile], tileLocation.getTileX, tileLocation.getTileY, "preview")
             }
         }).on("mouseleave", function () {
             d3.select("#machine-area").select(".preview").remove();

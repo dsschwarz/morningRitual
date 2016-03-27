@@ -3,27 +3,24 @@ var router = express.Router();
 var assert = require('assert');
 var AssertionError = assert.AssertionError;
 
-function tryWithRedirect(req, res, action) {
-    try {
-        action.call();
-    } catch (e) {
-        var message;
-        if (e instanceof AssertionError) {
-            message = e.message;
-        } else {
-            console.error("Lobby join failure");
-            console.error(e);
-            message = "An unknown error occurred";
-        }
-        req.flash('error', message);
-        res.redirect('/');
+function handleError(req, res, error) {
+    var message;
+    if (error instanceof AssertionError) {
+        message = error.message;
+    } else {
+        console.error("Lobby failure");
+        console.error(error);
+        message = "An unknown error occurred";
     }
+    req.flash('danger', message);
+    res.redirect('/');
 }
 
 function getRoutes(roomService, userService) {
     router.get("/:lobbyId", function (req, res, next) {
         var lobbyId = parseInt(req.params.lobbyId);
         var lobby = roomService.getLobby(lobbyId);
+        assert(lobby != undefined, "Lobby does not exist");
         res.render("lobby", {lobby: lobby, title: "Lobby"})
     });
 
@@ -34,25 +31,29 @@ function getRoutes(roomService, userService) {
     });
 
     router.post("/:lobbyId/join", function (req, res, next) {
-        tryWithRedirect(req, res, function () {
-            var userId = req.cookies.playerId;
-            var lobbyId = parseInt(req.params.lobbyId);
-            roomService.joinLobby(lobbyId, userId);
+        var userId = req.cookies.playerId;
+        var lobbyId = parseInt(req.params.lobbyId);
+        userService.getUserById(userId).then(function (user) {
+            roomService.joinLobby(lobbyId, user);
             res.redirect("/lobby/" + lobbyId);
+        }).catch(function (error) {
+            handleError(req, res, error);
         });
     });
 
-    router.post("/:lobbyId/beginGame", function (req, res, next) {
+    router.post("/:lobbyId/begin", function (req, res, next) {
         var lobbyId = parseInt(req.params.lobbyId);
         var newGame = roomService.beginGame(lobbyId);
         res.redirect("/game/" + newGame.id);
     });
 
     router.post("/create", function (req, res, next) {
-        tryWithRedirect(req, res, function () {
-            var userId = req.cookies.playerId;
-            var lobby = roomService.createLobby(userId, req.body.name);
+        var userId = req.cookies.playerId;
+        userService.getUserById(userId).then(function (user) {
+            var lobby = roomService.createLobby(user, req.body.name);
             res.redirect("/lobby/" + lobby.id);
+        }).catch(function (error) {
+            handleError(req, res, error);
         });
     });
 

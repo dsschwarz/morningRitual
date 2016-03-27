@@ -17,16 +17,16 @@ define(["states/baseState", "underscore"], function (baseState, _) {
                 console.warn("Invalid tile")
             } else {
                 if (_.contains(this.stateManager.getGame().getOpenTiles(), tile)) {
-                    this.stateManager.networking.takeOpenTile(tile);
-                    this.stateManager.goToState("TakingTile")
+                    this.stateManager.goToState("TakingTile", this.stateManager.networking.takeFromOpenArea(tile))
+                } else if (_.contains(this.stateManager.getGame().getGoalTiles(), tile)) {
+                    this.stateManager.goToState("TakingTile", this.stateManager.networking.takeFromGoalArea(tile))
                 } else {
                     console.warn("Invalid tile");
                 }
             }
         },
         selectDeck: function () {
-            // draw card state does not exist
-            this.stateManager.goToState("DrawingCard");
+            this.stateManager.goToState("TakingTile", this.stateManager.networking.drawTile());
         }
     });
     return DefaultState;

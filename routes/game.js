@@ -5,19 +5,21 @@ function getRoutes(roomService) {
     router.get("/:gameId", function (req, res, next) {
         res.render("game", {
             title: "Morning Ritual",
-            gameId: req.params.gameId
+            gameId: parseInt(req.params.gameId)
         });
     });
     router.get("/:gameId/state", function (req, res, next) {
-        var game = roomService.getGame(req.params.gameId);
+        var game = roomService.getGame(parseInt(req.params.gameId));
         res.send(game.getGameState());
     });
     
     // TODO turn into post method
-    router.get("/:gameId/gameAction", function () {
+    router.get("/:gameId/gameAction", function (req, res, next) {
         var params = req.query;
         
-        roomService.performGameAction(req.params.gameId, params.action);
+
+        var result = roomService.performGameAction(parseInt(req.params.gameId), req.cookies.playerId, params.action);
+        res.send(result);
     });
 
     return router;

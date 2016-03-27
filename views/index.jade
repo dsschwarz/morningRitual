@@ -2,11 +2,6 @@ extends layout
 
 block content
   h1 Lobbies
-  if errors.length
-    div.error
-      for errorMessage in errors
-        div.alert-danger.alert= errorMessage
-
 
   form(method="post", action="/lobby/create", class="form form-inline")
     fieldset(class="form-group")

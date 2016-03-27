@@ -3,7 +3,7 @@ define(["networking/connect"], function (connect) {
         var that = this;
         this.socket = io();
         this._gameStateCallbacks = [];
-        this.playerId = connect.connect("connectGame", this.socket);
+        this.playerId = connect.connect("connectGame", window.GAME_ID, this.socket);
 
         this.beginListening();
         return this;
@@ -16,7 +16,7 @@ define(["networking/connect"], function (connect) {
         });
         
         this.socket.on("updateGameState", function (newState) {
-            that._gameStateCallbacks.each(function (callback) {
+            that._gameStateCallbacks.forEach(function (callback) {
                 callback.call(null, newState);
             });
         });
@@ -27,35 +27,40 @@ define(["networking/connect"], function (connect) {
     };
 
     GameNetworkingService.prototype.getGameState = function () {
-        // send http request
+        return $.get(window.location + "/state");
     };
 
     GameNetworkingService.prototype.placeTile = function(row, column) {
-        this.socket.emit("placeTile", row, column);
+        return this._takeAction("discardTile", {
+            row: row,
+            column: column
+        });
     };
 
     GameNetworkingService.prototype.discardTile = function() {
-        this.socket.emit("discardTile");
+        return this._takeAction("discardTile");
     };
 
     GameNetworkingService.prototype.takeFromOpenArea = function (tile) {
-        var deferred = new $.Deferred();
-        // TODO create http request
-        this.socket.once("takeFromOpenAreaResult", function (result) {
-            deferred.resolve(result);
-        });
-        this.socket.emit("takeFromOpenArea", tile.id);
-        return deferred.promise();
+        return this._takeAction("takeOpenTile", {
+            tileId: tile.id
+        })
     };
 
     GameNetworkingService.prototype.drawTile = function () {
-        var deferred = new $.Deferred();
-        // TODO http request
-        this.socket.once("tileDrawn", function (tileData) {
-            deferred.resolve(tileData);
+        return this._takeAction("drawTile");
+    };
+
+    GameNetworkingService.prototype._takeAction = function (actionName, params) {
+        var action = {
+            name: actionName
+        };
+        if (params) {
+            _.extend(action, params);
+        }
+        return $.get(window.location + "/gameAction", {
+            action: action
         });
-        this.socket.emit("drawCard");
-        return deferred.promise();
     };
 
     return GameNetworkingService;

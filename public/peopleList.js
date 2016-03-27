@@ -1,6 +1,6 @@
 define(["jquery"], function ($) {
     return {
-        updatePeopleList: function(newPeople) {
+        updatePeopleList: function(newPeople, currentPlayerId, gameInterface) {
             var that = this;
             var container = $(".player-list").empty();
 
@@ -11,23 +11,24 @@ define(["jquery"], function ($) {
             _.each(newPeople, function (person, i) {
                 var personContainer = $("<div>")
                     .addClass("player")
-                    .toggleClass("primary", person.id == that.stateManager.getCurrentPlayerId())
+                    .toggleClass("primary", person.id == currentPlayerId)
                     .toggleClass("disconnected", !!person.disconnected)
                     .appendTo(container);
 
                 $("<span>")
                     .addClass("player-name")
-                    .text(person.name)
+                    .text(person.username)
                     .appendTo(personContainer);
 
-                $("<button>")
-                    .addClass("btn stage3")
-                    .text("Show Machine")
-                    .click(function () {
-                        game.showMachine(person);
-                        gameInterface.render();
-                    })
-                    .appendTo(personContainer);
+                if (gameInterface) {
+                    $("<button>")
+                        .addClass("btn")
+                        .text("Show Machine")
+                        .click(function () {
+                            gameInterface.showMachine(person);
+                        })
+                        .appendTo(personContainer);
+                }
             });
         }
     };

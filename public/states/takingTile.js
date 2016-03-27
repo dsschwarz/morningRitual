@@ -1,15 +1,20 @@
 define(["states/baseState"], function (baseState) {
-    var TakingTile = function (stateManager, tile) {
-        this.stateManager = stateManager;
-        stateManager.getGame().takeFromOpenArea(tile)
-            .then(function (result) {
-                if (result) {
-                    stateManager.getGame().engine.openArea.removeCard(tile);
-                    stateManager.goToState("PlaceCard", tile);
+    var TakingTile = function (stateManager, promise) {
+        promise.then(function (result) {
+            if (result) {
+                stateManager.handleGameStateChange(result);
+                var tile = stateManager.getPlayerTile();
+                if (tile.score) {
+                    stateManager.goToState("PlacingGoalTile");
                 } else {
-                    stateManager.goToState("ChooseAction");
+                    stateManager.goToState("PlacingOrdinaryTile")
                 }
-            });
+            } else {
+                console.error("Could not draw card");
+                stateManager.goToState("DefaultState");
+            }
+        });
+
         return this;
     };
     TakingTile.prototype = Object.create(baseState);

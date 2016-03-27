@@ -1,24 +1,24 @@
 define(["underscore"], function (_) {
     return {
-        connect: function (connectionChannel, socket) {
+        connect: function (connectionChannel, roomId, socket) {
             var cookieString = document.cookie;
             var playerId;
             _.each(cookieString.split(";"), function (cookiePair) {
                 var split = cookiePair.split("=");
                 var cookieName = split[0].trim();
                 if (cookieName == "playerId") {
-                    playerId = parseInt(split[1]); // all ids are numeric for now
+                    playerId = split[1];
                 }
             });
             if (playerId) {
                 socket.once("joined", function (player) {
-                    if (player.id == playerId) {
+                    if (player._id == playerId) {
                         console.log("Successfully joined");
                     } else {
                         throw new Error("Problem reconnecting. Ids do not match");
                     }
                 });
-                socket.emit("customReconnect", playerId);
+                socket.emit(connectionChannel, playerId, roomId);
                 return playerId;
             } else {
                 throw new Error("Missing user id")
