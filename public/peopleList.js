@@ -25,7 +25,7 @@ define(["jquery"], function ($) {
                         .addClass("btn")
                         .text("Show Machine")
                         .click(function () {
-                            gameInterface.showMachine(person);
+                            gameInterface.showMachine(person._id);
                         })
                         .appendTo(personContainer);
                 }

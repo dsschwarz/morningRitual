@@ -3,6 +3,7 @@ define(["playerArea", "underscore"], function (PlayerArea, _) {
         var self = this;
         this.openTiles = gameState.openTiles;
         this.goalTiles = gameState.goalTiles;
+        this.players = gameState.players;
         this._playerAreas = {};
     
         _.each(gameState.playerAreas, function (state, playerId) {

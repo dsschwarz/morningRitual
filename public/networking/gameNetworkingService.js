@@ -17,7 +17,6 @@ define(["networking/connect"], function (connect) {
         
         this.socket.on("updateGameState", function (gameId, newState) {
             if (window.GAME_ID == gameId) {
-                console.log(newState.players);
                 that._gameStateCallbacks.forEach(function (callback) {
                     callback.call(null, newState);
                 });

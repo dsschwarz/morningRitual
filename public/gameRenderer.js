@@ -1,4 +1,4 @@
-define(["imageData"], function (imageData) {
+define(["imageData", "peopleList"], function (imageData, peopleList) {
     var CARD_WIDTH = 50;
     var CARD_HEIGHT = 50;
 
@@ -15,15 +15,19 @@ define(["imageData"], function (imageData) {
     var GameRenderer = function (stateManager) {
         var that = this;
         this.stateManager = stateManager;
-        this.currentPlayerId = stateManager.getCurrentPlayerId();
+        this.shownPlayerId = stateManager.getCurrentPlayerId();
         stateManager.onChange(function () {
             that.render();
-            console.log("Re-renderer")
         });
         this.registerListeners();
         this.render();
     };
     GameRenderer.prototype.render = function () {
+        peopleList.updatePeopleList(
+            this.stateManager.getGame().players,
+            this.stateManager.getCurrentPlayerId(),
+            this
+        );
         this.renderOpenArea();
         this.renderGoalArea();
 
@@ -73,7 +77,7 @@ define(["imageData"], function (imageData) {
     GameRenderer.prototype.renderPlayerArea = function () {
         var game = this.stateManager.getGame();
         var currentState = this.stateManager.getState();
-        var tiles = game.getPlayerArea(this.currentPlayerId).getTiles();
+        var tiles = game.getPlayerArea(this.shownPlayerId).getTiles();
 
         var machineArea = d3.select("#machine-area")
             .classed("selectable", currentState.playerAreaIsSelectable && game.showingMyArea());
@@ -215,6 +219,11 @@ define(["imageData"], function (imageData) {
         $(".deckButton").click(function deckClickHandler() {
             that.stateManager.getState().selectDeck();
         });
+    };
+
+    GameRenderer.prototype.showMachine = function (playerId) {
+        this.shownPlayerId = playerId;
+        this.render();
     };
 
     return GameRenderer;
