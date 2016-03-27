@@ -6,12 +6,14 @@ module.exports = {
         return _.extend(Object.create(definition), {
             id: uniqueIds.getId(),
             isGoalTile: function () {
-                return definition.score instanceof Number;
+                return _.isFinite(definition.score);
             },
             toDTO: function () {
                 return {
                     id: this.id,
-                    imageId: this.imageId
+                    imageId: this.imageId,
+                    name: this.name,
+                    score: this.score
                 }
             }
         })
@@ -21,12 +23,10 @@ module.exports = {
             row: row,
             column: column,
             toDTO: function () {
-                return {
-                    id: this.id,
-                    imageId: this.imageId,
+                return _.extend(tile.toDTO(), {
                     row: this.row,
-                    column: this.column
-                }
+                    column: this.column,
+                });
             }
         })
     }

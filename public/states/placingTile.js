@@ -40,7 +40,7 @@ define(["states/baseState", "underscore"], function (baseState, _) {
         selectGoalTile: function () {
             this.cancel();
         }
-    })
+    });
 
     return {
         PlacingGoalTile: PlacingGoalTile,

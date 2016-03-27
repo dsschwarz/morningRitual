@@ -24,9 +24,13 @@ function Deck() {
 }
 
 var deckList = {
-    coffee: 4,
+    coffee: 8,
     bottle: 2,
-    chewer: 2
+    pipe: 3,
+    candle: 2,
+    fan: 2,
+    mousetrap: 1,
+    bucket: 1
 };
 
 module.exports = Deck;

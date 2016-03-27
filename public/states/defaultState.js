@@ -6,9 +6,11 @@ define(["states/baseState", "underscore"], function (baseState, _) {
     DefaultState.prototype = Object.create(baseState);
     _.extend(DefaultState.prototype, {
         isTileSelectable: function (tile) {
-            var tiles = this.stateManager.getGame().getOpenTiles();
+            var openTiles = this.stateManager.getGame().getOpenTiles();
+            var goalTiles = this.stateManager.getGame().getGoalTiles();
 
-            return _.some(tiles, function (c) {
+            var allTiles = openTiles.concat(goalTiles);
+            return _.some(allTiles, function (c) {
                 return c.id == tile.id;
             });
         },

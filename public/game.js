@@ -2,6 +2,7 @@ define(["playerArea", "underscore"], function (PlayerArea, _) {
     function Game(gameState) {
         var self = this;
         this.openTiles = gameState.openTiles;
+        this.goalTiles = gameState.goalTiles;
         this._playerAreas = {};
     
         _.each(gameState.playerAreas, function (state, playerId) {
@@ -16,7 +17,7 @@ define(["playerArea", "underscore"], function (PlayerArea, _) {
     };
 
     Game.prototype.getGoalTiles = function() {
-        return [];
+        return this.goalTiles;
     };
 
     Game.prototype.showMachine = function(person) {

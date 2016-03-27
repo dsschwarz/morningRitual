@@ -17,6 +17,7 @@ define(["networking/connect"], function (connect) {
         
         this.socket.on("updateGameState", function (gameId, newState) {
             if (window.GAME_ID == gameId) {
+                console.log(newState.players);
                 that._gameStateCallbacks.forEach(function (callback) {
                     callback.call(null, newState);
                 });
@@ -45,6 +46,12 @@ define(["networking/connect"], function (connect) {
 
     GameNetworkingService.prototype.takeFromOpenArea = function (tile) {
         return this._takeAction("takeOpenTile", {
+            tileId: tile.id
+        })
+    };
+
+    GameNetworkingService.prototype.takeFromGoalArea = function (tile) {
+        return this._takeAction("takeGoalTile", {
             tileId: tile.id
         })
     };

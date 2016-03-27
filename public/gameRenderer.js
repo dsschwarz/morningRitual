@@ -25,6 +25,7 @@ define(["imageData"], function (imageData) {
     };
     GameRenderer.prototype.render = function () {
         this.renderOpenArea();
+        this.renderGoalArea();
 
         this.renderPlayerArea();
     };
@@ -99,6 +100,8 @@ define(["imageData"], function (imageData) {
             .classed("tile-image", true)
             .attr("width", CARD_WIDTH)
             .attr("height", CARD_HEIGHT);
+        newTiles.append("title")
+            .classed("tile-image-tooltip", true);
 
         tiles
             .classed("selectable", function (d) {
@@ -117,6 +120,11 @@ define(["imageData"], function (imageData) {
                     console.warn("Invalid image id - " + d.imageId);
                     return;
                 }
+            });
+
+        tiles.select(".tile-image-tooltip")
+            .text(function (d) {
+                return d.name;
             });
 
         tiles.exit().remove();

@@ -27,6 +27,12 @@ TileCollection.prototype.getTiles = function () {
     return this._tiles;
 };
 
+TileCollection.prototype.getTileDTOs = function () {
+    return this._tiles.map(function (tile) {
+        return tile.toDTO();
+    });
+};
+
 TileCollection.prototype.containsTile = function (tileId) {
     return _.some(this._tiles, function (tile) {
         return tile.id == tileId;
