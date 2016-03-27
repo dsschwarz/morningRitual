@@ -17,7 +17,7 @@ define(["networking/connect", "jquery"], function (connect, $) {
 
         this.socket.on("updateLobbyState", function (lobbyId, newState) {
             if (lobbyId == window.LOBBY_ID) {
-                that._lobbyChangeCallbacks.each(function (callback) {
+                that._lobbyChangeCallbacks.forEach(function (callback) {
                     callback.call(null, newState);
                 });
             }

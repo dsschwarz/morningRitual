@@ -36,7 +36,7 @@ function RoomService(lobbyManager, gameManager, io) {
         assert(!lobby.getPlayer(user.id), "Already in lobby");
         assert(lobby, "Lobby does not exist");
         lobby.addPlayer(user);
-        io.emit("updateLobby", lobbyId, lobby.getLobbyState());
+        io.emit("updateLobbyState", lobbyId, lobby.getLobbyState());
     };
 
     this.beginGame = function (lobbyId) {
@@ -65,7 +65,7 @@ function RoomService(lobbyManager, gameManager, io) {
             var player = lobby.getPlayer(playerId);
             if (player) {
                 player.disconnected = true;
-                io.emit("updateLobby", lobby.id, lobby.getLobbyState());
+                io.emit("updateLobbyState", lobby.id, lobby.getLobbyState());
             }
         });
         gameManager.games().forEach(function (game) {
@@ -196,13 +196,15 @@ function GameManager() {
         if (actionName == "drawTile") {
             game.drawTile(playerId);
         } else if (actionName == "placeTile") {
-            game.placeTile(playerId, actionDto.row, actionDto.column);
+            game.placeTile(playerId, parseInt(actionDto.row), parseInt(actionDto.column));
         } else if (actionName == "discardTile") {
             game.discardTile(playerId);
         } else if (actionName == "takeOpenTile") {
             game.takeOpenTile(playerId, actionDto.tileId);
         } else if (actionName == "takeGoalTile") {
             game.takeGoalTile(playerId, actionDto.tileId);
+        } else {
+            throw new Error("Unrecognized action - " + actionName)
         }
         return game.getGameState();
     };

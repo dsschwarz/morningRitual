@@ -7,10 +7,10 @@ define(["states/baseState", "underscore"], function (baseState, _) {
         playerAreaIsSelectable: true,
         selectPlayerArea: function (row, column) {
             var game = this.stateManager.getGame();
-            var playerEngine = game.getPlayerEngine();
-            if (playerEngine.canPlaceCard(stateManager.getPlayerTile(), row, column)) {
+            var playerArea = game.getPlayerArea(this.stateManager.getCurrentPlayerId());
+            if (playerArea.canPlaceTile(this.stateManager.getPlayerTile(), row, column)) {
                 this.stateManager.networking.placeTile(row, column);
-                this.stateManager.goToState("ChooseAction");
+                this.stateManager.goToState("DefaultState");
             } else {
                 throw new Error("Invalid location")
             }
@@ -25,6 +25,7 @@ define(["states/baseState", "underscore"], function (baseState, _) {
         return this;
     };
     PlacingOrdinaryTile.prototype = _.extend(Object.create(placingTileMethods), {
+        openAreaIsSelectable: true,
         selectOpenArea: function () {
             this.cancel();
         }
@@ -35,6 +36,7 @@ define(["states/baseState", "underscore"], function (baseState, _) {
         return this;
     };
     PlacingGoalTile.prototype = _.extend(Object.create(placingTileMethods), {
+        goalAreaIsSelectable: true,
         selectGoalTile: function () {
             this.cancel();
         }

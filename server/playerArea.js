@@ -22,7 +22,7 @@ pAreaProto.canPlaceTile = function(row, column) {
     return !!this.heldTile && !existingTile && neighbouringTile;
 };
 
-pAreaProto.addTileToMachine = function (row, column) {
+pAreaProto.placeTile = function (row, column) {
     if (this.canPlaceTile(row, column)) {
         var placedTile = _tile.placeTile(this.heldTile, row, column);
         this._items.push(placedTile);
@@ -33,7 +33,7 @@ pAreaProto.addTileToMachine = function (row, column) {
 };
 
 pAreaProto.setHeldTile = function (tile) {
-    if (!!this.heldTile) {
+    if (!!tile && !!this.heldTile) {
         throw new Error("Already holding tile");
     }
     

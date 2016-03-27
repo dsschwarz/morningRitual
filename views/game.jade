@@ -14,11 +14,17 @@ block content
     div
         button.btn.deckButton Draw Card
         .player-list
-    div
-        h2 Common Area
-        svg#common-area(width='800', height='200')
-            g.card-container
+
+    div.row
+        div.col-sm-6
+            h2 Open Area
+            svg#open-area(width='400', height='200')
+                g.tile-container
+        div.col-sm-6
+            h2 Goal Area
+            svg#goal-area(width='400', height='200')
+                g.tile-container
     div
         h2 Device
         svg#machine-area(width='800', height='500')
-            g.card-container
+            g.tile-container

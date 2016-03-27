@@ -42,6 +42,8 @@ _.extend(Game.prototype, {
         if (!playerArea.heldTile) {
             var newTile = this.deck.drawTile();
             playerArea.setHeldTile(newTile);
+        } else {
+            throw new Error("Already holding tile")
         }
     },
     placeTile: function (playerId, row, column) {
@@ -76,7 +78,7 @@ Game.prototype.getGameState = function () {
         }
     });
     return {
-        openArea: this.openArea.getTiles().map(function (tile) { return tile.toDTO()}),
+        openTiles: this.openArea.getTiles().map(function (tile) { return tile.toDTO()}),
         playerAreas: playerAreas
     }
 };

@@ -3,5 +3,9 @@ requirejs(["networking/lobbyNetworkingService", "peopleList"], function (Network
     
     networkingService.getLobbyState().then(function (lobbyState) {
         peopleList.updatePeopleList(lobbyState.players);
+
+        networkingService.onChange(function (newState) {
+            peopleList.updatePeopleList(newState.players);
+        })
     });
 });

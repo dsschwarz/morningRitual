@@ -15,10 +15,12 @@ define(["networking/connect"], function (connect) {
             console.error(e);
         });
         
-        this.socket.on("updateGameState", function (newState) {
-            that._gameStateCallbacks.forEach(function (callback) {
-                callback.call(null, newState);
-            });
+        this.socket.on("updateGameState", function (gameId, newState) {
+            if (window.GAME_ID == gameId) {
+                that._gameStateCallbacks.forEach(function (callback) {
+                    callback.call(null, newState);
+                });
+            }
         });
     };
 
@@ -31,7 +33,7 @@ define(["networking/connect"], function (connect) {
     };
 
     GameNetworkingService.prototype.placeTile = function(row, column) {
-        return this._takeAction("discardTile", {
+        return this._takeAction("placeTile", {
             row: row,
             column: column
         });

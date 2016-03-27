@@ -15,6 +15,7 @@ define(["lib/d3", "states/allStates", "Game"], function (d3, allStates, Game) {
 
     StateManager.prototype.handleGameStateChange = function (newState) {
         this.game = new Game(newState);
+        this.getCurrentPlayerArea(); // ensure it exists
         this._triggerChange();
     };
 
@@ -43,7 +44,15 @@ define(["lib/d3", "states/allStates", "Game"], function (d3, allStates, Game) {
     };
 
     StateManager.prototype.getPlayerTile = function () {
-        return this.game.getPlayerArea(this.getCurrentPlayerId()).heldTile;
+        return this.getCurrentPlayerArea().heldTile;
+    };
+
+    StateManager.prototype.getCurrentPlayerArea = function () {
+        var playerId = this.getCurrentPlayerId();
+        var playerArea = this.game.getPlayerArea(playerId);
+        if (!playerArea) throw new Error("Player area does not exist");
+
+        return playerArea;
     };
 
     StateManager.prototype.getCurrentPlayerId = function () {

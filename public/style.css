@@ -1,16 +1,17 @@
-.card .card-image {
+.tile .tile-image {
     stroke: darkgrey;
 }
 
-.card.preview {
+.tile.preview {
     opacity: 0.3;
+    pointer-events: none;
 }
 
 .selectable {
     border: goldenrod solid 1px;
     cursor: pointer;
 }
-.card.selectable .card-image {
+.tile.selectable .tile-image {
     stroke: goldenrod;
 }
 .port-label.selectable {

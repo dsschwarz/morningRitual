@@ -13,9 +13,15 @@ define(["imageData"], function (imageData) {
     };
 
     var GameRenderer = function (stateManager) {
+        var that = this;
         this.stateManager = stateManager;
         this.currentPlayerId = stateManager.getCurrentPlayerId();
+        stateManager.onChange(function () {
+            that.render();
+            console.log("Re-renderer")
+        });
         this.registerListeners();
+        this.render();
     };
     GameRenderer.prototype.render = function () {
         this.renderOpenArea();
@@ -26,10 +32,10 @@ define(["imageData"], function (imageData) {
     GameRenderer.prototype.renderOpenArea = function() {
         var tiles = this.stateManager.getGame().getOpenTiles();
 
-        var commonArea = d3.select("#common-area")
+        var openArea = d3.select("#open-area")
             .classed("selectable", this.stateManager.getState().openAreaIsSelectable);
 
-        var tileContainer = commonArea
+        var tileContainer = openArea
             .select(".tile-container");
 
         var getTileX = function(d, index) {
@@ -41,6 +47,27 @@ define(["imageData"], function (imageData) {
 
         this.renderTiles(tileContainer, tiles, getTileX, getTileY);
     };
+
+    GameRenderer.prototype.renderGoalArea = function() {
+        var tiles = this.stateManager.getGame().getGoalTiles();
+
+        var goalArea = d3.select("#goal-area")
+            .classed("selectable", this.stateManager.getState().goalAreaIsSelectable);
+
+        var tileContainer = goalArea
+            .select(".tile-container");
+
+        var getTileX = function(d, index) {
+            return index*(CARD_WIDTH + 10);
+        };
+        var getTileY = function(d) {
+            return 10;
+        };
+
+        this.renderTiles(tileContainer, tiles, getTileX, getTileY);
+    };
+
+
 
     GameRenderer.prototype.renderPlayerArea = function () {
         var game = this.stateManager.getGame();
@@ -76,7 +103,7 @@ define(["imageData"], function (imageData) {
         tiles
             .classed("selectable", function (d) {
                 var currentState = that.stateManager.getState();
-                return currentState.selectableTile && currentState.selectableTile(d);
+                return currentState.isTileSelectable(d);
             })
             .attr("transform", function (d) {
                 return "translate(" + x.apply(this, arguments) + "," + y.apply(this, arguments) + ")";
@@ -111,16 +138,21 @@ define(["imageData"], function (imageData) {
 
         this.registerDeckListener();
         // BINDINGS
-        d3.select("#common-area")
+        d3.select("#open-area")
             .on("click", function () {
-                if (that.stateManager.getState().onCommonAreaSelect) {
-                    that.stateManager.getState().onCommonAreaSelect();
-                    d3.event.stopPropagation();
-                }
-            })
+                that.stateManager.getState().selectOpenArea();
+                d3.event.stopPropagation();
+            });
+        d3.select("#goal-area")
+            .on("click", function () {
+                that.stateManager.getState().selectGoalArea();
+                d3.event.stopPropagation();
+            });
+
+        d3.select(".show-smooth-preview")
             .on("mousemove", function () {
-                if (that.stateManager.getState().currentTile) {
-                    var tile = that.stateManager.getState().currentTile();
+                var heldTile = that.stateManager.getPlayerTile();
+                if (heldTile) {
                     var x = d3.event.x - this.getBoundingClientRect().left;
                     var y = d3.event.y - this.getBoundingClientRect().top;
 
@@ -131,11 +163,11 @@ define(["imageData"], function (imageData) {
                         return y;
                     };
 
-                    that.renderTiles(d3.select("#common-area"), [tile], getTileX, getTileY, "preview")
+                    that.renderTiles(d3.select("#open-area"), [heldTile], getTileX, getTileY, "preview")
                 }
             })
             .on("mouseleave", function () {
-                d3.select("#common-area").select(".preview").remove();
+                d3.select("#open-area").select(".preview").remove();
             });
 
         machineAreaHelpers.element().on("click", function () {

@@ -18,7 +18,7 @@ define([], function () {
 
         return !existingTile && neighbouringTile;
     };
-
+    
     pEngineProto.getTile = function (row, column) {
         return _.findWhere(this._tiles, {
             row: row,
