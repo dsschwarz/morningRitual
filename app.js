@@ -21,6 +21,7 @@ var RoomService = require("./server/roomService/roomService");
 var gameRoutes = require("./routes/game");
 var lobbyRoutes = require("./routes/lobby");
 var indexRoute = require("./routes/index");
+var userRoutes = require("./routes/user");
 var UserService = require("./server/user/userService");
 
 // view engine setup
@@ -45,7 +46,7 @@ app.use(function (req, res, next) {
 var userService = new UserService();
 var roomService = new RoomService(io);
 
-app.use('/', indexRoute(roomService, userService));
+app.use('/', userRoutes(userService));
 app.use(function (req, res, next) {
     if (req.session.user == undefined) {
         req.flash("danger", "Please log in to continue");
@@ -55,6 +56,7 @@ app.use(function (req, res, next) {
         next();
     }
 });
+app.use('/', indexRoute(roomService));
 app.use('/game', gameRoutes(roomService));
 app.use('/lobby', lobbyRoutes(roomService, userService));
 

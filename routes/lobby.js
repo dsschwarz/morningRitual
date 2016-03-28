@@ -16,6 +16,12 @@ function handleError(req, res, error) {
     res.redirect('/');
 }
 
+/**
+ * Controller to handle lobby related actions
+ * @param roomService {RoomService}
+ * @param userService {UserService}
+ * @returns {LobbyController}
+ */
 function getRoutes(roomService, userService) {
     router.get("/:lobbyId", function (req, res, next) {
         var lobbyId = parseInt(req.params.lobbyId);

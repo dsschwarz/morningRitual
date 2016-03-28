@@ -1,6 +1,12 @@
 var express = require('express');
 var router = express.Router();
 
+
+/**
+ * Controller to handle game related actions
+ * @param roomService {RoomService}
+ * @returns {*}
+ */
 function getRoutes(roomService) {
     router.get("/:gameId", function (req, res, next) {
         res.render("game", {
