@@ -2,14 +2,16 @@ extends layout
 
 block content
   h1 Sign Up
-  form(class="form", method="POST", action="/register")
-    fieldset(class="form-group")
-      label(for="nameInput") User Name
-      input(id="nameInput", placeholder="johndoe123", name="username", class="form-control")
-    fieldset(class="form-group")
-      label(for="password") Password
-      input(id="password", type="password" name="password", class="form-control")
-    fieldset(class="form-group")
-      label(for="emailInput") Email (optional)
-      input(id="emailInput" name="email", class="form-control")
-    input(type="submit", value="Sign Up!").btn
+  div
+    form(class="form", method="POST", action="/register")
+      fieldset(class="form-group")
+        label(for="nameInput") User Name
+        input(id="nameInput", placeholder="johndoe123", name="username", class="form-control")
+      fieldset(class="form-group")
+        label(for="password") Password
+        input(id="password", type="password" name="password", class="form-control")
+      fieldset(class="form-group")
+        label(for="emailInput") Email (optional)
+        input(id="emailInput" name="email", class="form-control")
+      input(type="submit", value="Sign Up!").btn.btn-success.btn-lg
+  a(href="/login") Already have an account?
