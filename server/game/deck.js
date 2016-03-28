@@ -5,6 +5,10 @@ var tileDefinitions = require("./tileDefinitions");
 function Deck() {
     var tiles = [];
 
+    /**
+     * Add another set of tiles to the deck
+     * @private
+     */
     function addTiles() {
         _.each(deckList, function (number, name) {
             for (var i=0; i<number; i++) {
@@ -23,8 +27,12 @@ function Deck() {
     return this;
 }
 
+/**
+ * The cards to populate the deck with
+ * @private
+ */
 var deckList = {
-    coffee: 8,
+    coffee: 4,
     bottle: 2,
     pipe: 3,
     candle: 2,

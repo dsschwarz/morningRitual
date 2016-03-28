@@ -1,4 +1,4 @@
-define(["states/baseState"], function (baseState) {
+define(["gameInterface/states/baseState"], function (baseState) {
     var TakingTile = function (stateManager, promise) {
         promise.then(function (result) {
             if (result) {

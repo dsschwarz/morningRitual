@@ -17,11 +17,11 @@ console.log("Connecting to database");
 mongoose.connect('mongodb://localhost/morningRitual');
 
 
-var rooms = require("./server/roomService");
+var RoomService = require("./server/roomService/roomService");
 var gameRoutes = require("./routes/game");
 var lobbyRoutes = require("./routes/lobby");
 var indexRoute = require("./routes/index");
-var UserService = require("./server/userService");
+var UserService = require("./server/user/userService");
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -43,9 +43,7 @@ app.use(function (req, res, next) {
 });
 
 var userService = new UserService();
-var lobbyManager = new rooms.LobbyManager();
-var gameManager = new rooms.GameManager();
-var roomService = new rooms.RoomService(lobbyManager, gameManager, io);
+var roomService = new RoomService(io);
 
 app.use('/', indexRoute(roomService, userService));
 app.use(function (req, res, next) {
@@ -64,12 +62,12 @@ io.on('connection', function(socket) {
     var cachedPlayerId = null;
     socket.on("connectLobby", function (playerId, lobbyId) {
         cachedPlayerId = playerId;
-        lobbyManager.connectPlayer(playerId, lobbyId, socket);
+        roomService.connectPlayer(playerId, lobbyId, socket);
     });
 
     socket.on("connectGame", function (playerId, gameId) {
         cachedPlayerId = playerId;
-        gameManager.connectPlayer(playerId, gameId, socket);
+        roomService.connectPlayer(playerId, gameId, socket);
     });
 
     socket.on('disconnect', function(){

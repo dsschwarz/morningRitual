@@ -1,4 +1,4 @@
-define(["imageData", "peopleList"], function (imageData, peopleList) {
+define(["utils/imageData", "utils/peopleList"], function (imageData, peopleList) {
     var CARD_WIDTH = 50;
     var CARD_HEIGHT = 50;
 

@@ -1,4 +1,4 @@
-define(["playerArea", "underscore"], function (PlayerArea, _) {
+define(["game/playerArea", "underscore"], function (PlayerArea, _) {
     function Game(gameState) {
         var self = this;
         this.openTiles = gameState.openTiles;

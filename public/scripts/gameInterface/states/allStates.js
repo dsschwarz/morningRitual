@@ -1,7 +1,7 @@
 define([
-    "states/defaultState",
-    "states/placingTile",
-    "states/takingTile"
+    "gameInterface/states/defaultState",
+    "gameInterface/states/placingTile",
+    "gameInterface/states/takingTile"
 ], function (DefaultState, placingTile, TakingTile) {
     return {
         "DefaultState": DefaultState,

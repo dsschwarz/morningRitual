@@ -1,7 +1,13 @@
 define(["jquery"], function ($) {
     return {
-        updatePeopleList: function(newPeople, currentPlayerId, gameInterface) {
-            var that = this;
+        /**
+         * A helper function to populate the list of players in a room
+         * @param newPeople {User[]} The latest list of people in this room
+         * @param [currentPlayerId] {String} The id of the current player. If passed, that player is highlighted
+         * @param [gameRenderer] {GameRenderer} If passed, adds and binds a Show Machine button,
+     *                                          to allow viewing another players handiwork
+         */
+        updatePeopleList: function(newPeople, currentPlayerId, gameRenderer) {
             var container = $(".player-list").empty();
 
             if (container.length == 0) {
@@ -20,12 +26,12 @@ define(["jquery"], function ($) {
                     .text(person.username)
                     .appendTo(personContainer);
 
-                if (gameInterface) {
+                if (gameRenderer) {
                     $("<button>")
                         .addClass("btn")
                         .text("Show Machine")
                         .click(function () {
-                            gameInterface.showMachine(person._id);
+                            gameRenderer.showMachine(person._id);
                         })
                         .appendTo(personContainer);
                 }

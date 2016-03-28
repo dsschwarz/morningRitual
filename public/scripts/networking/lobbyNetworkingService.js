@@ -30,7 +30,7 @@ define(["networking/connect", "jquery"], function (connect, $) {
         })
     };
 
-    LobbyNetworkingService.prototype.onChange = function(callback) {
+    LobbyNetworkingService.prototype.onLobbyListChange = function(callback) {
         this._lobbyChangeCallbacks.push(callback);
     };
 

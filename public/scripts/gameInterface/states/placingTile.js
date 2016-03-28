@@ -1,4 +1,4 @@
-define(["states/baseState", "underscore"], function (baseState, _) {
+define(["gameInterface/states/baseState", "underscore"], function (baseState, _) {
     /**
      * Consider this the js equivalent of a private, abstract base class
      * {PlacingTile}

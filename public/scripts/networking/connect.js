@@ -1,4 +1,7 @@
 define(["underscore"], function (_) {
+    /**
+     * This is a helper class to help the networking service connect to a room on the server
+     */
     return {
         connect: function (connectionChannel, roomId, socket) {
             var cookieString = document.cookie;

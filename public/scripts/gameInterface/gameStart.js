@@ -1,5 +1,5 @@
 requirejs([
-    "gameRenderer", "states/stateManager", "networking/gameNetworkingService"
+    "gameInterface/gameRenderer", "gameInterface/states/stateManager", "networking/gameNetworkingService"
 ], function (GameRenderer, StateManager, Networking) {
     $(document).ready(function () {
         var gameNetworkingService = new Networking();

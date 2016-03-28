@@ -1,4 +1,4 @@
-define(["states/baseState", "underscore"], function (baseState, _) {
+define(["gameInterface/states/baseState", "underscore"], function (baseState, _) {
     var DefaultState = function (stateManager) {
         this.stateManager = stateManager;
         return this;

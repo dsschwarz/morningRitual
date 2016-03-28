@@ -1,6 +1,5 @@
-define(["lib/d3", "states/allStates", "Game"], function (d3, allStates, Game) {
+define(["lib/d3", "gameInterface/states/allStates", "game/game"], function (d3, allStates, Game) {
     function StateManager(initialState, gameNetworkingService) {
-        var that;
         this.game = new Game(initialState);
         this.networking = gameNetworkingService;
         this.networking.onGameStateChange(this.handleGameStateChange.bind(this));

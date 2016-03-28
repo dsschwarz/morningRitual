@@ -3,12 +3,12 @@ extends layout
 block additionalHead
     script.
         window.GAME_ID = #{gameId};
-    script(src='/lib/d3.js')
-    script(src="/lib/jquery-1.11.1.js")
-    script(src='/lib/bootstrap-3.3.6-dist/js/bootstrap.js')
+    script(src='/scripts/lib/d3.js')
+    script(src="/scripts/lib/jquery-1.11.1.js")
+    script(src='/scripts/lib/bootstrap-3.3.6-dist/js/bootstrap.js')
     script(src='/socket.io/socket.io.js')
-    script(src='/require-config.js')
-    script(src='/lib/require.js', data-main="gameStart")
+    script(src='/scripts/require-config.js')
+    script(src='/scripts/lib/require.js', data-main="gameInterface/gameStart")
 
 block content
     div
