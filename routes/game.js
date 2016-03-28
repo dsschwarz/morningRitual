@@ -9,14 +9,21 @@ var router = express.Router();
  */
 function getRoutes(roomService) {
     router.get("/:gameId", function (req, res, next) {
-        res.render("game", {
-            title: "Morning Ritual",
-            gameId: parseInt(req.params.gameId)
-        });
+        var id = parseInt(req.params.gameId);
+        var game = roomService.getGame(id);
+        if(game == undefined) {
+            req.flash("danger", "Game does not exist");
+            res.redirect("/");
+        } else {
+            res.render("game", {
+                title: "Morning Ritual",
+                gameId: id
+            });
+        }
     });
     router.get("/:gameId/state", function (req, res, next) {
         var game = roomService.getGame(parseInt(req.params.gameId));
-        res.send(game.getGameState());
+        res.send(game.getState());
     });
     
     // TODO turn into post method

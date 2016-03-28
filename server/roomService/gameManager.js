@@ -7,11 +7,7 @@ var _ = require("underscore");
  */
 function GameManager() {
     var games = [];
-
-    this.games = function () {
-        return games;
-    };
-
+    
     this.getGame = function (id) {
         return _.findWhere(games, {id: id})
     };
@@ -38,7 +34,7 @@ function GameManager() {
         } else {
             throw new Error("Unrecognized action - " + actionName)
         }
-        return game.getGameState();
+        return game.getState();
     };
     return this;
 }

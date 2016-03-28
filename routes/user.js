@@ -48,7 +48,7 @@ function getRoutes(userService) {
         });
     });
 
-    router.get("/logout", function (req, res, next) {
+    router.post("/logout", function (req, res, next) {
         req.session.user = null;
         req.flash("success", "Logged out");
         res.cookie("playerId", null);

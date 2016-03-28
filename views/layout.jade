@@ -6,12 +6,16 @@ html
     link(rel='stylesheet', href='/stylesheets/bootstrap.css')
     link(rel='stylesheet', href='/stylesheets/bootstrap-theme.css')
     block additionalHead
-  body.container
+  body
     if locals.username
       div.pull-right
         span Logged in as #{locals.username}
+        br
+        form(action="/logout", method="post")
+          input(type="submit", value="Log Out").btn
 
-    for outputs, messageType in messages
-      for output in outputs
-        div(class="alert alert-#{messageType}")= output
-    block content
+    div.container
+      for outputs, messageType in messages
+        for output in outputs
+          div(class="alert alert-#{messageType}")= output
+      block content

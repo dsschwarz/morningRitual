@@ -26,14 +26,18 @@ function getRoutes(roomService, userService) {
     router.get("/:lobbyId", function (req, res, next) {
         var lobbyId = parseInt(req.params.lobbyId);
         var lobby = roomService.getLobby(lobbyId);
-        assert(lobby != undefined, "Lobby does not exist");
-        res.render("lobby", {lobby: lobby, title: "Lobby"})
+        if(lobby == undefined) {
+            req.flash("danger", "Lobby does not exist");
+            res.redirect("/");
+        } else {
+            res.render("lobby", {lobby: lobby, title: "Lobby"});
+        }
     });
 
     router.get("/:lobbyId/state", function (req, res, next) {
         var lobbyId = parseInt(req.params.lobbyId);
         var lobby = roomService.getLobby(lobbyId);
-        res.send(lobby.getLobbyState());
+        res.send(lobby.getState());
     });
 
     router.post("/:lobbyId/join", function (req, res, next) {

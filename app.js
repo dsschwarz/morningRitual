@@ -62,18 +62,21 @@ app.use('/lobby', lobbyRoutes(roomService, userService));
 
 io.on('connection', function(socket) {
     var cachedPlayerId = null;
+    var cachedRoomId = null;
     socket.on("connectLobby", function (playerId, lobbyId) {
         cachedPlayerId = playerId;
+        cachedRoomId = lobbyId;
         roomService.connectPlayer(playerId, lobbyId, socket);
     });
 
     socket.on("connectGame", function (playerId, gameId) {
         cachedPlayerId = playerId;
+        cachedRoomId = gameId;
         roomService.connectPlayer(playerId, gameId, socket);
     });
 
     socket.on('disconnect', function(){
-        roomService.disconnectPlayer(cachedPlayerId);
+        roomService.disconnectPlayer(cachedPlayerId, cachedRoomId);
     });
 });
 

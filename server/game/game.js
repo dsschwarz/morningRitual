@@ -40,6 +40,7 @@ function Game(players) {
     });
 
     _.each(players, function (player) {
+        player.disconnected = true;
         self._playerAreas[player.id] = new PlayerArea(player.id);
     });
 
@@ -112,7 +113,7 @@ Game.prototype.takeGoalTile = function (playerId, tileId) {
     this._takeTileFromArea(playerId, tileId, this.goalArea);
 };
 
-Game.prototype.getGameState = function () {
+Game.prototype.getState = function () {
     var playerAreas = {};
     _.each(this._playerAreas, function (engine) {
         playerAreas[engine.playerId] = {

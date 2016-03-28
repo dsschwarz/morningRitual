@@ -7,7 +7,7 @@ block content
     fieldset(class="form-group")
         label(for="nameInput")
         input(id="nameInput", placeholder="Lobby Name", name="name", class="form-control")
-    input(type="submit", value="Create Lobby")
+    input(type="submit", value="Create Lobby").btn
   div
     h2 Available
     div.row
@@ -15,4 +15,4 @@ block content
         div.col-sm-6= lobby.name
         div.col-sm-6
           form.pull-right(method="post", action="/lobby/#{lobby.id}/join")
-            input(type="submit", value="Join")
+            input(type="submit", value="Join").btn

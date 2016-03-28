@@ -26,7 +26,7 @@ function Lobby(owner, name) {
         players.push(player)
     };
 
-    this.getLobbyState = function () {
+    this.getState = function () {
         return {
             players: players
         }

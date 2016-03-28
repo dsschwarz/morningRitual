@@ -38,7 +38,7 @@ function RoomService(io) {
         assert(!lobby.getPlayer(user.id), "Already in lobby");
         assert(lobby, "Lobby does not exist");
         lobby.addPlayer(user);
-        io.emit("updateLobbyState", lobbyId, lobby.getLobbyState());
+        io.emit("updateLobbyState", lobbyId, lobby.getState());
     };
 
     this.beginGame = function (lobbyId) {
@@ -62,21 +62,17 @@ function RoomService(io) {
         return result;
     };
     
-    this.disconnectPlayer = function (playerId) {
-        lobbyManager.lobbies().forEach(function (lobby) {
-            var player = lobby.getPlayer(playerId);
+    this.disconnectPlayer = function (playerId, roomId) {
+        var room = lobbyManager.getLobby(roomId) || gameManager.getGame(roomId);
+        if (room) {
+            var player = room.getPlayer(playerId);
             if (player) {
                 player.disconnected = true;
-                io.emit("updateLobbyState", lobby.id, lobby.getLobbyState());
+                io.emit("updateState", room.id, room.getState());
             }
-        });
-        gameManager.games().forEach(function (game) {
-            var player = game.getPlayer(playerId);
-            if (player) {
-                player.disconnected = true;
-                io.emit("updateGameState", game.id, game.getGameState());
-            }
-        });
+        } else {
+            console.warn("Cannot disconnect player from non-existent room");
+        }
     };
     
     this.connectPlayer = function (playerId, roomId, socket) {
